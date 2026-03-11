@@ -393,7 +393,7 @@
         </div>
     </div>
 
-    <!-- 桌面 -->
+    <!-- 桌面 (新增音乐播放器图标) -->
     <div id="desktop">
         <div class="desktop-icon" ondblclick="openApp('notepad')"><span>📝</span><p>记事本</p></div>
         <div class="desktop-icon" ondblclick="openApp('codeeditor')"><span>💻</span><p>代码编辑器</p></div>
@@ -405,11 +405,12 @@
         <div class="desktop-icon" ondblclick="openApp('calendar')"><span>📅</span><p>日历</p></div>
         <div class="desktop-icon" ondblclick="openApp('imageviewer')"><span>🖼️</span><p>图片查看</p></div>
         <div class="desktop-icon" ondblclick="openApp('videoplayer')"><span>🎬</span><p>视频播放</p></div>
+        <div class="desktop-icon" ondblclick="openApp('musicplayer')"><span>🎵</span><p>音乐播放</p></div> <!-- 新增 -->
         <div class="desktop-icon" ondblclick="openApp('settings')"><span>⚙️</span><p>设置</p></div>
         <div class="desktop-icon" ondblclick="openApp('about')"><span>ℹ️</span><p>关于 UTP</p></div>
     </div>
 
-    <!-- 开始菜单 -->
+    <!-- 开始菜单 (新增音乐播放器) -->
     <div id="start-menu">
         <div class="menu-search">
             <span>🔍</span> <input type="text" placeholder="搜索应用、文件和设置..." style="border:none; outline:none; width:100%; background:transparent;">
@@ -425,6 +426,7 @@
             <div class="menu-item" onclick="openApp('codeeditor'); toggleStartMenu()"><span>💻</span><p>代码</p></div>
             <div class="menu-item" onclick="openApp('imageviewer'); toggleStartMenu()"><span>🖼️</span><p>图片</p></div>
             <div class="menu-item" onclick="openApp('videoplayer'); toggleStartMenu()"><span>🎬</span><p>视频</p></div>
+            <div class="menu-item" onclick="openApp('musicplayer'); toggleStartMenu()"><span>🎵</span><p>音乐</p></div> <!-- 新增 -->
             <div class="menu-item" onclick="openApp('calculator'); toggleStartMenu()"><span>🧮</span><p>计算器</p></div>
             <div class="menu-item" onclick="openApp('settings'); toggleStartMenu()"><span>⚙️</span><p>设置</p></div>
         </div>
@@ -518,7 +520,7 @@
                                     'desktop': { type: 'dir', children: {} },
                                     'code': {
                                         type: 'dir', children: {
-                                            'hello.js': { type: 'file', content: 'console.log("Hello Shiorko OS!");' },
+                                            'hello.py': { type: 'file', content: '# Python 示例\ndef greet(name):\n    print(f"你好, {name}!")\n\ngreet("Shiorko")' },
                                             'style.css': { type: 'file', content: 'body { background: #000; }' }
                                         }
                                     }
@@ -533,26 +535,30 @@
         };
         let currentPath = ['C:', 'Users', 'User'];
 
-        // --- 应用定义 ---
+        // --- 应用定义 (修改codeeditor为Python示例，新增musicplayer) ---
         const apps = {
             'notepad': { title: '记事本', icon: '📝', w: 450, h: 350, content: `<textarea class="notepad-area" id="np-TEMP_ID" placeholder="输入内容..." style="width:100%;height:100%;border:none;resize:none;outline:none;font-family:monospace;padding:10px;" oninput="saveNotepad('TEMP_ID', this.value)"></textarea>` },
-            'codeeditor': { title: '代码编辑器', icon: '💻', w: 500, h: 400, content: `<div class="code-editor"><div class="line-numbers" id="ln-TEMP_ID">1</div><textarea class="code-area" id="code-TEMP_ID" spellcheck="false" oninput="updateLines('TEMP_ID', this)">// 在此编写代码\nfunction hello() {\n  console.log("Hi Shiorko!");\n}</textarea></div>` },
+            // 代码编辑器改成python语言
+            'codeeditor': { title: '代码编辑器 (Python)', icon: '💻', w: 500, h: 400, content: `<div class="code-editor"><div class="line-numbers" id="ln-TEMP_ID">1</div><textarea class="code-area" id="code-TEMP_ID" spellcheck="false" oninput="updateLines('TEMP_ID', this)"># Python 3\n\ndef hello():\n    print("Hello, Shiorko OS!")\n\nif __name__ == "__main__":\n    hello()</textarea></div>` },
             'calculator': { title: '计算器', icon: '🧮', w: 260, h: 360, content: `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:10px;height:100%"><div id="calc-disp-TEMP_ID" style="grid-column:span 4;background:#fff;border:1px solid #ccc;text-align:right;padding:15px;font-size:24px;border-radius:6px;margin-bottom:5px;font-family:monospace">0</div><button class="btn-calc" style="grid-column:span 4;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;border:none;background:transparent;padding:0" onclick="event.stopPropagation()">${['C','/','*','-', '7','8','9','+', '4','5','6','=', '1','2','3','.', '0'].map(k=>`<button onclick="calcOp('TEMP_ID','${k}')" style="border:none;border-radius:4px;font-size:18px;cursor:pointer;background:${['+','-','*','/','='].includes(k)?'#e8f4ff':'#fff'};color:${k==='='?'#fff':'#333'};background:${k==='='?'var(--primary-color)':(['+','-','*','/'].includes(k)?'#e8f4ff':'#fff')};height:45px">${k}</button>`).join('')}</button></div>` },
             'browser': { title: 'Web 浏览器', icon: '🌐', w: 800, h: 500, content: `<div style="display:flex;flex-direction:column;height:100%"><div style="padding:8px;background:#f1f1f1;border-bottom:1px solid #ddd;display:flex;gap:8px"><button onclick="document.getElementById('frame-TEMP_ID').contentWindow.location.reload()">🔄</button><input type="text" id="url-TEMP_ID" value="https://dick.shiorko.dpdns.org/" style="flex-grow:1;padding:4px 8px;border:1px solid #ccc;border-radius:4px" onkeydown="if(event.key==='Enter')loadUrl('TEMP_ID')"><button class="btn-primary" onclick="loadUrl('TEMP_ID')">访问</button></div><iframe id="frame-TEMP_ID" style="flex-grow:1;border:none;background:#fff" src="https://dick.shiorko.dpdns.org/"></iframe></div>` },
-            'terminal': { title: '终端 (PowerShell)', icon: '⌨️', w: 650, h: 420, content: `<div class="terminal-window" id="term-TEMP_ID" onclick="document.getElementById('inp-TEMP_ID').focus()"><div class="term-line">Shiorko OS UTP [Version ${CONFIG.version}]</div><div class="term-line">${CONFIG.copyright}</div><br><div id="hist-TEMP_ID"></div><div class="term-input-line"><span class="term-prompt" id="prompt-TEMP_ID">C:\\Users\\User></span><input type="text" class="term-input" id="inp-TEMP_ID" autocomplete="off" onkeydown="handleTerm(event,'TEMP_ID')"></div></div>` },
+            // 终端汉化 (内容在初始化时修改)
+            'terminal': { title: '终端 (PowerShell)', icon: '⌨️', w: 650, h: 420, content: `<div class="terminal-window" id="term-TEMP_ID" onclick="document.getElementById('inp-TEMP_ID').focus()"><div class="term-line">Shiorko OS UTP [版本 ${CONFIG.version}]</div><div class="term-line">${CONFIG.copyright}</div><div class="term-line">欢迎使用 中文终端</div><br><div id="hist-TEMP_ID"></div><div class="term-input-line"><span class="term-prompt" id="prompt-TEMP_ID">C:\\Users\\User></span><input type="text" class="term-input" id="inp-TEMP_ID" autocomplete="off" onkeydown="handleTerm(event,'TEMP_ID')"></div></div>` },
             'fileexplorer': { title: '文件资源管理器', icon: '📁', w: 650, h: 420, content: `<div style="display:flex;flex-direction:column;height:100%"><div style="padding:8px;background:#f9f9f9;border-bottom:1px solid #eee;display:flex;gap:8px"><button class="btn-primary" onclick="feUp('TEMP_ID')">↑ 上级</button><input type="text" id="path-TEMP_ID" readonly style="flex-grow:1;padding:4px 8px;border:1px solid #ddd;border-radius:4px"><button class="btn-primary" onclick="renderFiles('TEMP_ID')">刷新</button></div><div id="content-TEMP_ID" style="flex-grow:1;display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:10px;padding:10px;overflow-y:auto;align-content:start" oncontextmenu="showCtx(event, 'TEMP_ID', null)"></div></div>` },
             'paint': { title: '画图板', icon: '🎨', w: 600, h: 450, content: `<div style="display:flex;flex-direction:column;height:100%"><div class="paint-toolbar"><input type="color" id="color-TEMP_ID" class="color-picker" value="#000000"><input type="range" id="size-TEMP_ID" min="1" max="20" value="3"><button class="btn-primary" onclick="clearCanvas('TEMP_ID')">清空</button><button class="btn-danger" onclick="downloadCanvas('TEMP_ID')">保存</button></div><canvas id="canvas-TEMP_ID" style="flex-grow:1;width:100%"></canvas></div>` },
             'snake': { title: '贪吃蛇', icon: '🐍', w: 400, h: 450, content: `<div style="display:flex;flex-direction:column;height:100%;background:#f0f0f0"><div class="game-score">得分: <span id="score-TEMP_ID">0</span></div><canvas id="snake-canvas-TEMP_ID" width="360" height="360" style="margin:10px auto;background:#222;border-radius:4px"></canvas><div style="text-align:center;color:#666;font-size:12px">使用方向键控制</div></div>` },
             'calendar': { title: '日历 & 待办', icon: '📅', w: 350, h: 400, content: `<div style="padding:15px"><h3 style="text-align:center;margin-top:0" id="cal-month-TEMP_ID"></h3><div class="calendar-grid" id="cal-grid-TEMP_ID"></div><div style="margin-top:20px;border-top:1px solid #eee;padding-top:10px"><h4>待办事项</h4><div style="display:flex;gap:5px"><input type="text" id="todo-in-TEMP_ID" placeholder="添加任务..." style="flex-grow:1;padding:5px;border:1px solid #ddd;border-radius:4px"><button class="btn-primary" onclick="addTodo('TEMP_ID')">+</button></div><ul id="todo-list-TEMP_ID" style="padding-left:20px;font-size:13px"></ul></div></div>` },
             'imageviewer': { title: '图片查看器', icon: '🖼️', w: 600, h: 450, content: `<div style="display:flex;flex-direction:column;height:100%;background:#333"><div style="padding:8px;background:#222;color:#fff;display:flex;gap:10px;align-items:center"><input type="file" id="img-file-TEMP_ID" accept="image/*" style="display:none" onchange="loadLocalImg('TEMP_ID', this)"><button class="btn-primary" onclick="document.getElementById('img-file-TEMP_ID').click()">打开本地</button><input type="text" id="img-url-TEMP_ID" placeholder="图片 URL" style="flex-grow:1;padding:4px;border-radius:4px;border:none"><button class="btn-primary" onclick="loadUrlImg('TEMP_ID')">加载</button></div><div style="flex-grow:1;display:flex;align-items:center;justify-content:center;overflow:hidden"><img id="img-disp-TEMP_ID" style="max-width:100%;max-height:100%;display:none"></div></div>` },
             'videoplayer': { title: '视频播放器', icon: '🎬', w: 700, h: 500, content: `<div style="display:flex;flex-direction:column;height:100%;background:#000"><div style="padding:8px;background:#222;color:#fff;display:flex;gap:10px;align-items:center"><input type="file" id="vid-file-TEMP_ID" accept="video/*" style="display:none" onchange="loadLocalVid('TEMP_ID', this)"><button class="btn-primary" onclick="document.getElementById('vid-file-TEMP_ID').click()">打开本地</button><input type="text" id="vid-url-TEMP_ID" placeholder="视频 URL (.mp4)" style="flex-grow:1;padding:4px;border-radius:4px;border:none"><button class="btn-primary" onclick="loadUrlVid('TEMP_ID')">加载</button></div><div style="flex-grow:1;display:flex;align-items:center;justify-content:center;background:#000"><video id="vid-disp-TEMP_ID" controls style="max-width:100%;max-height:100%;display:none"></video></div></div>` },
+            // 新增音乐播放器
+            'musicplayer': { title: '音乐播放器', icon: '🎵', w: 500, h: 300, content: `<div style="display:flex;flex-direction:column;height:100%;background:#f5f5f5"><div style="padding:8px;background:#ddd;display:flex;gap:10px;align-items:center"><input type="file" id="audio-file-TEMP_ID" accept="audio/*" style="display:none" onchange="loadLocalAudio('TEMP_ID', this)"><button class="btn-primary" onclick="document.getElementById('audio-file-TEMP_ID').click()">打开本地</button><input type="text" id="audio-url-TEMP_ID" placeholder="音频 URL (.mp3等)" style="flex-grow:1;padding:4px;border-radius:4px;border:none"><button class="btn-primary" onclick="loadUrlAudio('TEMP_ID')">加载</button></div><div style="flex-grow:1;display:flex;align-items:center;justify-content:center;padding:20px"><audio id="audio-disp-TEMP_ID" controls style="width:100%"></audio></div></div>` },
             'settings': { title: '设置', icon: '⚙️', w: 500, h: 400, content: `<div style="padding:20px"><div style="margin-bottom:20px"><h3>个性化</h3><p>壁纸 URL:</p><input type="text" id="bg-input" style="width:100%;padding:8px;margin:5px 0;border:1px solid #ddd;border-radius:4px" value="${getComputedStyle(document.documentElement).getPropertyValue('--bg-image').replace(/url\(['"]?|['"]?\)/g,'')}"><button class="btn-primary" onclick="changeBg()">应用壁纸</button> <button class="btn-danger" onclick="resetBg()">重置默认</button></div><div><h3>系统信息</h3><p>版本: ${CONFIG.version}</p><p>开发者: ${CONFIG.author}</p><p>内核: WebOS Kernel v2.0</p><p>运行时间: <span id="uptime">0s</span></p></div></div>` },
             'about': { title: '关于 Shiorko OS UTP', icon: 'ℹ️', w: 400, h: 300, content: `<div style="text-align:center;padding:40px"><h1 style="color:var(--primary-color);margin:0">Shiorko OS</h1><h2 style="color:#666;margin:5px 0 20px 0;font-weight:normal">UTP Edition</h2><div style="font-size:50px;margin:20px">🚀</div><p>纯前端构建的终极操作系统模拟平台。</p><p>无后端，无框架，极致性能。</p><hr style="border:0;border-top:1px solid #eee;margin:25px 0"><p style="font-size:12px;color:#999">${CONFIG.copyright}</p></div>` }
         };
 
         // --- 初始化 ---
         window.onload = function() {
-            runBootSequence();
+            runBootSequence(); // 修改后的开机序列会等待壁纸
             updateClock();
             setInterval(updateClock, 1000);
             initWidgets();
@@ -572,7 +578,7 @@
             }, { once: true });
         };
 
-        // --- 随机启动序列 ---
+        // --- 随机启动序列 (修改：最后等待壁纸) ---
         function runBootSequence() {
             const log = document.getElementById('boot-log');
             const bar = document.getElementById('boot-progress-bar');
@@ -588,7 +594,6 @@
                 "启动电源管理服务...", "系统就绪。"
             ];
             
-            // 随机选择步骤数量 (10 到 全部)
             const totalSteps = Math.floor(Math.random() * (steps.length - 10)) + 10;
             const selectedSteps = steps.slice(0, totalSteps);
             
@@ -596,15 +601,9 @@
             
             const processStep = () => {
                 if(current >= selectedSteps.length) {
-                    setTimeout(() => {
-                        document.getElementById('boot-screen').style.opacity = '0';
-                        setTimeout(() => {
-                            document.getElementById('boot-screen').remove();
-                            document.getElementById('wallpaper').classList.add('animate');
-                            // 显示欢迎弹窗
-                            document.getElementById('modal-overlay').style.display = 'flex';
-                        }, 1000);
-                    }, 500);
+                    // 步骤完成，开始加载壁纸
+                    status.innerText = "正在加载壁纸...";
+                    loadWallpaperAndFinish();
                     return;
                 }
                 
@@ -612,25 +611,53 @@
                 const div = document.createElement('div');
                 div.className = 'log-entry';
                 
-                // 随机状态
                 const rand = Math.random();
                 let prefix = "[ OK ]";
                 let cls = "log-ok";
                 if(rand > 0.95) { prefix = "[WARN]"; cls = "log-warn"; }
-                else if(rand > 0.98) { prefix = "[ERR]"; cls = "log-err"; } // 极少错误但继续
+                else if(rand > 0.98) { prefix = "[ERR]"; cls = "log-err"; }
                 
                 div.innerHTML = `<span class="${cls}">${prefix}</span> ${step}`;
-                log.prepend(div); // 最新在最上 (因为 flex-direction: column-reverse)
+                log.prepend(div);
                 
                 status.innerText = step;
                 bar.style.width = `${((current + 1) / totalSteps) * 100}%`;
                 
                 current++;
-                // 随机延迟 (50ms - 300ms)
                 setTimeout(processStep, Math.random() * 250 + 50);
             };
             
             setTimeout(processStep, 500);
+        }
+
+        // 等待壁纸加载完成，随机延时后进入桌面
+        function loadWallpaperAndFinish() {
+            const bgUrl = getComputedStyle(document.documentElement).getPropertyValue('--bg-image').replace(/url\(['"]?|['"]?\)/g, '');
+            const img = new Image();
+            img.onload = () => {
+                // 随机延时 0.5~2 秒
+                const delay = Math.random() * 1500 + 500;
+                setTimeout(() => {
+                    document.getElementById('boot-screen').style.opacity = '0';
+                    setTimeout(() => {
+                        document.getElementById('boot-screen').remove();
+                        document.getElementById('wallpaper').classList.add('animate');
+                        document.getElementById('modal-overlay').style.display = 'flex';
+                    }, 1000);
+                }, delay);
+            };
+            img.onerror = () => {
+                // 加载失败也继续，但不再延时
+                setTimeout(() => {
+                    document.getElementById('boot-screen').style.opacity = '0';
+                    setTimeout(() => {
+                        document.getElementById('boot-screen').remove();
+                        document.getElementById('wallpaper').classList.add('animate');
+                        document.getElementById('modal-overlay').style.display = 'flex';
+                    }, 1000);
+                }, 300);
+            };
+            img.src = bgUrl;
         }
 
         function closeModal() {
@@ -641,13 +668,6 @@
             const now = new Date();
             document.getElementById('time').innerText = now.toLocaleTimeString('zh-CN', {hour:'2-digit', minute:'2-digit'});
             document.getElementById('date').innerText = now.toLocaleDateString('zh-CN', {weekday:'short', year:'numeric', month:'long', day:'numeric'});
-            
-            // 更新运行时间
-            const up = document.getElementById('uptime');
-            if(up) {
-                const start = performance.now(); // 简化处理，实际应记录启动时间戳
-                // 这里仅作演示，实际需全局变量记录启动时间
-            }
         }
 
         function toggleStartMenu() {
@@ -656,7 +676,7 @@
         }
 
         // --- 窗口管理 ---
-        function openApp(appId) {
+        function openApp(appId, initialContent) {
             const id = appId + '-' + Date.now();
             const app = apps[appId];
             if(!app) return;
@@ -685,7 +705,6 @@
             win.addEventListener('mousedown', () => activateWindow(id));
             document.body.appendChild(win);
             
-            // 触发动画
             requestAnimationFrame(() => win.classList.add('opened'));
             
             windows[id] = { el: win, appId, minimized: false, maximized: false, prev: null };
@@ -702,8 +721,24 @@
                 if(appId === 'paint') initPaint(id);
                 if(appId === 'snake') initSnake(id);
                 if(appId === 'calendar') initCalendar(id);
-                if(appId === 'codeeditor') updateLines(id, document.getElementById(`code-${id}`));
+                if(appId === 'codeeditor') {
+                    const area = document.getElementById(`code-${id}`);
+                    if(area) updateLines(id, area);
+                }
+                // 如果有初始内容传递给代码编辑器
+                if(appId === 'codeeditor' && initialContent) {
+                    const area = document.getElementById(`code-${id}`);
+                    if(area) {
+                        area.value = initialContent;
+                        updateLines(id, area);
+                    }
+                }
+                if(appId === 'notepad' && initialContent) {
+                    const area = document.getElementById(`np-${id}`);
+                    if(area) area.value = initialContent;
+                }
             }, 300);
+            return id; // 返回窗口ID便于后续操作
         }
 
         function activateWindow(id) {
@@ -726,7 +761,6 @@
                 win.remove();
                 delete windows[id];
                 removeFromTaskbar(id);
-                // 清理游戏/画布定时器
                 if(snakeIntervals[id]) clearInterval(snakeIntervals[id]);
             }, 250);
         }
@@ -782,7 +816,6 @@
 
         // --- 小组件逻辑 ---
         function initWidgets() {
-            // 初始化图表条
             const createChart = (id) => {
                 const c = document.getElementById(id);
                 c.innerHTML = '';
@@ -796,7 +829,6 @@
             createChart('cpu-chart');
             createChart('ram-chart');
 
-            // 模拟数据更新
             setInterval(() => {
                 const updateChart = (id, valId) => {
                     const bars = document.getElementById(id).children;
@@ -813,7 +845,6 @@
                 updateChart('ram-chart', 'ram-val');
             }, 2000);
 
-            // 模拟天气
             const weathers = [
                 { icon: '☀️', temp: '28°C' }, { icon: '⛅', temp: '24°C' },
                 { icon: '🌧️', temp: '19°C' }, { icon: '⛈️', temp: '17°C' },
@@ -827,7 +858,7 @@
         // --- 应用具体逻辑 ---
 
         // 记事本
-        function saveNotepad(id, val) { localStorage.setItem('shiorko_note_' + id, val); } // 简化：每个窗口独立存，实际应统一
+        function saveNotepad(id, val) { localStorage.setItem('shiorko_note_' + id, val); }
         
         // 代码编辑器
         function updateLines(id, area) {
@@ -851,7 +882,7 @@
             f.src = u.startsWith('http')?u:'https://'+u;
         };
 
-        // 终端 (超级增强)
+        // 终端 (汉化 + ping命令)
         window.handleTerm = (e, id) => {
             if(e.key === 'ArrowUp') {
                 if(historyIndex > 0) {
@@ -898,16 +929,16 @@
             };
 
             switch(cmd) {
-                case 'help': out = '命令: ls, cd, mkdir, touch, rm, edit, rename, cat, tree, find, clear, date, whoami, reboot, history'; break;
+                case 'help': out = '可用命令: ls, cd, mkdir, touch, rm, edit, rename, cat, tree, find, clear, date, whoami, reboot, history, ping, ipconfig'; break;
                 case 'clear': hist.innerHTML = ''; out = null; break;
                 case 'date': out = new Date().toString(); break;
-                case 'whoami': out = 'User (Admin)'; break;
+                case 'whoami': out = '用户 (管理员)'; break;
                 case 'reboot': location.reload(); break;
                 case 'history': out = commandHistory.map((c, i) => `${i+1}  ${c}`).join('<br>'); break;
                 case 'ls': 
                     const obj = getObj();
                     out = Object.keys(obj.children).map(k => 
-                        `<span style="color:${obj.children[k].type==='dir'?'#ff0':'#fff'}">${obj.children[k].type==='dir'?'[DIR]':'[FILE]'}</span> ${k}`
+                        `<span style="color:${obj.children[k].type==='dir'?'#ff0':'#fff'}">${obj.children[k].type==='dir'?'[目录]':'[文件]'}</span> ${k}`
                     ).join('<br>');
                     break;
                 case 'tree':
@@ -923,7 +954,7 @@
                     out = `C:\\<br>` + buildTree(fileSystem['C:']);
                     break;
                 case 'find':
-                    if(!args[1]) out = '用法: find <name>';
+                    if(!args[1]) out = '用法: find <名称>';
                     else {
                         const search = (node, path) => {
                             let results = [];
@@ -948,7 +979,7 @@
                     }
                     updatePrompt(); break;
                 case 'mkdir':
-                    if(!args[1]) out = '用法: mkdir <name>';
+                    if(!args[1]) out = '用法: mkdir <名称>';
                     else {
                         const curr = getObj();
                         if(curr.children[args[1]]) out = '已存在';
@@ -956,14 +987,14 @@
                     }
                     break;
                 case 'touch':
-                    if(!args[1]) out = '用法: touch <name>';
+                    if(!args[1]) out = '用法: touch <名称>';
                     else {
                         const curr = getObj();
                         if(!curr.children[args[1]]) curr.children[args[1]] = { type: 'file', content: '' };
                     }
                     break;
                 case 'rm':
-                    if(!args[1]) out = '用法: rm <name>';
+                    if(!args[1]) out = '用法: rm <名称>';
                     else {
                         const curr = getObj();
                         if(curr.children[args[1]]) delete curr.children[args[1]];
@@ -971,7 +1002,7 @@
                     }
                     break;
                 case 'edit':
-                    if(!args[1]) out = '用法: edit <file> <content>';
+                    if(!args[1]) out = '用法: edit <文件> <内容>';
                     else {
                         const curr = getObj();
                         const name = args[1];
@@ -983,7 +1014,7 @@
                     }
                     break;
                 case 'rename':
-                    if(!args[1] || !args[2]) out = '用法: rename <old> <new>';
+                    if(!args[1] || !args[2]) out = '用法: rename <旧名> <新名>';
                     else {
                         const curr = getObj();
                         if(curr.children[args[1]] && !curr.children[args[2]]) {
@@ -994,7 +1025,7 @@
                     }
                     break;
                 case 'cat':
-                    if(!args[1]) out = '用法: cat <file>';
+                    if(!args[1]) out = '用法: cat <文件>';
                     else {
                         const curr = getObj();
                         if(curr.children[args[1]] && curr.children[args[1]].type === 'file') {
@@ -1002,14 +1033,29 @@
                         } else out = '文件未找到';
                     }
                     break;
-                default: out = cmd ? `'${cmd}' 不是内部命令` : '';
+                // 新增网络命令 ping (模拟)
+                case 'ping':
+                    if(!args[1]) out = '用法: ping <主机名>';
+                    else {
+                        out = `正在 Ping ${args[1]} [模拟] 具有 32 字节的数据:<br>`;
+                        for(let i=0;i<4;i++) {
+                            let time = Math.floor(Math.random()*50+10);
+                            out += `来自 ${args[1]} 的回复: 字节=32 时间=${time}ms TTL=64<br>`;
+                        }
+                        out += `${args[1]} 的 Ping 统计信息:<br>    数据包: 已发送 = 4，已接收 = 4，丢失 = 0 (0% 丢失)`;
+                    }
+                    break;
+                case 'ipconfig':
+                    out = 'Windows IP 配置 (模拟)<br>    IPv4 地址 . . . . . . . : 192.168.1.100<br>    子网掩码 . . . . . . . . : 255.255.255.0<br>    默认网关 . . . . . . . . : 192.168.1.1';
+                    break;
+                default: out = cmd ? `'${cmd}' 不是内部或外部命令，也不是可运行的程序。` : '';
             }
             if(out) hist.innerHTML += `<div class="term-line" style="color:#ccc;margin-bottom:10px">${out}</div>`;
             const term = document.getElementById('term-'+id);
             term.scrollTop = term.scrollHeight;
         };
 
-        // 文件资源管理器
+        // 文件资源管理器 (修改双击.py用代码编辑器打开)
         function renderFiles(id) {
             const cont = document.getElementById('content-'+id);
             const pathInp = document.getElementById('path-'+id);
@@ -1030,18 +1076,15 @@
                 div.ondblclick = () => {
                     if(isDir) { currentPath.push(k); renderFiles(id); }
                     else {
-                        if(k.endsWith('.txt') || k.endsWith('.js') || k.endsWith('.css')) {
-                            openApp('notepad');
-                            setTimeout(() => {
-                                const np = document.querySelector(`.notepad-area[oninput*="${Date.now()-1000}"]`); // 简单查找
-                                // 实际应通过ID映射，这里简化：打开新记事本需手动复制内容，或改进openApp逻辑
-                                // 改进：直接编辑
-                                const content = obj.children[k].content;
-                                const newId = 'notepad-' + Date.now();
-                                // 重新打开一个带内容的记事本逻辑较复杂，此处提示
-                                alert(`文件内容:\n${content}\n(请在记事本中手动编辑)`);
-                            }, 100);
-                        } else alert('未知文件类型');
+                        const ext = k.split('.').pop().toLowerCase();
+                        if (ext === 'py') {
+                            // 使用代码编辑器打开，并传递内容
+                            openApp('codeeditor', obj.children[k].content);
+                        } else if (['txt', 'js', 'css', 'html', 'json'].includes(ext)) {
+                            openApp('notepad', obj.children[k].content);
+                        } else {
+                            alert('无法打开此文件类型');
+                        }
                     }
                 };
                 div.oncontextmenu = (e) => {
@@ -1169,14 +1212,12 @@
                     snake.pop();
                 }
                 
-                // 碰撞检测
                 if(head.x<0 || head.x>=18 || head.y<0 || head.y>=18 || snake.slice(1).some(s=>s.x===head.x && s.y===head.y)) {
                     clearInterval(snakeIntervals[id]);
                     alert('游戏结束! 得分: '+score);
                     return;
                 }
                 
-                // 绘制
                 ctx.fillStyle = '#222'; ctx.fillRect(0,0,360,360);
                 ctx.fillStyle = '#0f0'; snake.forEach(s => ctx.fillRect(s.x*20, s.y*20, 18, 18));
                 ctx.fillStyle = '#f00'; ctx.fillRect(food.x*20, food.y*20, 18, 18);
@@ -1249,6 +1290,22 @@
             if(url) {
                 const vid = document.getElementById('vid-disp-'+id);
                 vid.src = url; vid.style.display = 'block'; vid.play();
+            }
+        };
+
+        // 音乐播放器
+        window.loadLocalAudio = (id, input) => {
+            if(input.files[0]) {
+                const audio = document.getElementById('audio-disp-'+id);
+                audio.src = URL.createObjectURL(input.files[0]);
+                audio.style.display = 'block'; audio.play();
+            }
+        };
+        window.loadUrlAudio = (id) => {
+            const url = document.getElementById('audio-url-'+id).value;
+            if(url) {
+                const audio = document.getElementById('audio-disp-'+id);
+                audio.src = url; audio.style.display = 'block'; audio.play();
             }
         };
 
