@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shiorko OS - Ultimate Edition</title>
+    <style>
+        :root {
+            --bg-image: url('https://file.shiorko.dpdns.org/file/VRC.png');
+            --primary-color: #0078d4;
+            --taskbar-bg: rgba(20, 20, 20, 0.9);
+            --window-bg: rgba(245, 245, 245, 0.95);
+            --window-header: rgba(255, 255, 255, 0.7);
+            --text-color: #333;
+            --border-radius: 8px;
+            --shadow: 0 20px 50px rgba(0,0,0,0.5);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+
+        * { box-sizing: border-box; user-select: none; outline: none; }
+        
+        body {
+            margin: 0; padding: 0; width: 100vw; height: 100vh;
+            overflow: hidden; font-family: "Microsoft YaHei", "Segoe UI", sans-serif;
+            background: var(--bg-image) no-repeat center center/cover;
+            color: var(--text-color); transition: background 0.5s;
+        }
+
+        /* --- 开机动画 --- */
+        #boot-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 99999;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            color: #0f0; font-family: 'Consolas', monospace; padding: 20px;
+        }
+        .boot-log {
+            width: 600px; max-width: 90%; text-align: left;
+            font-size: 14px; line-height: 1.6;
+            text-shadow: 0 0 5px #0f0;
+        }
+        .boot-log div { opacity: 0; animation: fadeIn 0.3s forwards; }
+        @keyframes fadeIn { to { opacity: 1; } }
+        .boot-complete { color: #fff; font-weight: bold; margin-top: 20px; font-size: 18px; text-align: center; }
+
+        /* --- 桌面 --- */
+        #desktop {
+            width: 100%; height: calc(100% - 48px);
+            padding: 20px; display: flex; flex-direction: column;
+            flex-wrap: wrap; align-content: flex-start; gap: 15px;
+            position: relative; z-index: 1;
+        }
+        .desktop-icon {
+            width: 86px; height: 96px; display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            border-radius: 6px; cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.9);
+            border: 1px solid transparent;
+        }
+        .desktop-icon:hover { background: rgba(255, 255, 255, 0.2); border: 1px solid rgba(255,255,255,0.4); }
+        .desktop-icon:active { transform: scale(0.95); }
+        .desktop-icon span { font-size: 36px; margin-bottom: 6px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6)); }
+        .desktop-icon p { margin: 0; font-size: 13px; text-align: center; line-height: 1.3; font-weight: 500; }
+
+        /* --- 窗口系统 --- */
+        .window {
+            position: absolute; background: var(--window-bg);
+            border-radius: var(--border-radius); box-shadow: var(--shadow);
+            display: flex; flex-direction: column;
+            min-width: 320px; min-height: 200px;
+            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            border: var(--glass-border);
+            transition: opacity 0.2s, transform 0.2s, width 0.3s, height 0.3s;
+            overflow: hidden; resize: both;
+        }
+        .window.maximized {
+            top: 0 !important; left: 0 !important;
+            width: 100% !important; height: calc(100% - 48px) !important;
+            border-radius: 0; resize: none;
+        }
+        .window.minimized {
+            transform: scale(0.7) translateY(200px); opacity: 0; pointer-events: none;
+        }
+        .title-bar {
+            height: 36px; background: var(--window-header);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 12px; border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        .title-drag-area {
+            flex-grow: 1; height: 100%; display: flex; align-items: center;
+            font-size: 14px; font-weight: 600; color: #444; cursor: grab;
+        }
+        .title-drag-area:active { cursor: grabbing; }
+        .window-controls { display: flex; gap: 8px; }
+        .control-btn {
+            width: 14px; height: 14px; border-radius: 50%;
+            cursor: pointer; border: none; outline: none;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 8px; color: rgba(0,0,0,0.5); transition: filter 0.2s;
+        }
+        .control-btn:hover { filter: brightness(0.8); color: white; }
+        .btn-close { background: #ff5f56; }
+        .btn-min { background: #ffbd2e; }
+        .btn-max { background: #27c93f; }
+
+        .window-content {
+            flex-grow: 1; padding: 0; overflow: auto;
+            position: relative; user-select: text;
+            background: rgba(255,255,255,0.4);
+        }
+
+        /* --- 任务栏 --- */
+        #taskbar {
+            position: absolute; bottom: 0; width: 100%; height: 48px;
+            background: var(--taskbar-bg); backdrop-filter: blur(25px);
+            display: flex; align-items: center; padding: 0 12px;
+            z-index: 9999; border-top: 1px solid rgba(255,255,255,0.15);
+        }
+        #start-btn {
+            width: 40px; height: 40px; border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px; cursor: pointer; transition: background 0.2s;
+            margin-right: 12px;
+        }
+        #start-btn:hover { background: rgba(255,255,255,0.2); }
+        #task-list { display: flex; gap: 6px; flex-grow: 1; overflow-x: auto; }
+        .task-item {
+            min-width: 44px; height: 40px; border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px; cursor: pointer; transition: all 0.2s;
+            position: relative; background: rgba(255,255,255,0.05);
+        }
+        .task-item:hover { background: rgba(255,255,255,0.25); }
+        .task-item.active { background: rgba(255,255,255,0.3); border-bottom: 3px solid var(--primary-color); }
+        #clock {
+            color: white; font-size: 12px; text-align: right;
+            padding: 0 12px; cursor: default; display: flex; flex-direction: column; justify-content: center;
+        }
+        #clock:hover { background: rgba(255,255,255,0.1); border-radius: 4px; }
+
+        /* --- 开始菜单 --- */
+        #start-menu {
+            position: absolute; bottom: 58px; left: 12px;
+            width: 340px; height: 480px;
+            background: rgba(245, 245, 245, 0.98);
+            backdrop-filter: blur(30px); border-radius: 10px;
+            box-shadow: var(--shadow); display: none; flex-direction: column;
+            padding: 24px; z-index: 10000;
+            animation: slideUp 0.25s cubic-bezier(0.1, 0.9, 0.2, 1);
+            border: 1px solid rgba(255,255,255,0.6);
+        }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .menu-header { font-size: 18px; font-weight: bold; margin-bottom: 20px; color: #333; }
+        .menu-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; overflow-y: auto; padding-right: 5px; }
+        .menu-item {
+            display: flex; flex-direction: column; align-items: center;
+            cursor: pointer; padding: 10px; border-radius: 8px; transition: background 0.2s;
+        }
+        .menu-item:hover { background: rgba(0,0,0,0.05); }
+        .menu-item span { font-size: 28px; margin-bottom: 6px; }
+        .menu-item p { margin: 0; font-size: 12px; text-align: center; color: #555; }
+        .user-profile {
+            margin-top: auto; padding-top: 15px; border-top: 1px solid rgba(0,0,0,0.1);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .user-info { display: flex; align-items: center; gap: 10px; }
+        .avatar { width: 36px; height: 36px; background: #ddd; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+        .power-btn { cursor: pointer; font-size: 20px; padding: 8px; border-radius: 6px; }
+        .power-btn:hover { background: rgba(0,0,0,0.1); }
+
+        /* --- 应用特定样式 --- */
+        /* 记事本 */
+        textarea.notepad-area {
+            width: 100%; height: 100%; border: none; resize: none;
+            outline: none; font-family: 'Consolas', monospace; font-size: 14px;
+            background: transparent; padding: 10px; color: #333;
+        }
+        /* 计算器 */
+        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 10px; height: 100%; }
+        .calc-display {
+            grid-column: span 4; background: #fff; border: 1px solid #ccc;
+            text-align: right; padding: 12px; font-size: 24px;
+            border-radius: 6px; margin-bottom: 5px; font-family: monospace;
+        }
+        .calc-btn {
+            border: none; background: #fff; border-radius: 6px;
+            cursor: pointer; font-size: 18px; font-weight: 500;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: all 0.1s;
+        }
+        .calc-btn:hover { background: #f0f0f0; }
+        .calc-btn:active { transform: scale(0.95); }
+        .calc-btn.op { background: #e8f4ff; color: var(--primary-color); }
+        .calc-btn.eq { background: var(--primary-color); color: white; }
+        
+        /* 浏览器 */
+        .browser-bar { display: flex; gap: 8px; padding: 8px; background: #f1f1f1; border-bottom: 1px solid #ddd; }
+        .url-input { flex-grow: 1; border: 1px solid #ccc; border-radius: 4px; padding: 4px 8px; font-size: 13px; }
+        .browser-frame { width: 100%; height: calc(100% - 45px); border: none; background: white; }
+        
+        /* 终端 */
+        .terminal-window {
+            background: #1e1e1e; color: #00ff00; height: 100%;
+            font-family: 'Consolas', 'Courier New', monospace;
+            padding: 10px; overflow-y: auto; font-size: 14px; cursor: text;
+        }
+        .term-line { margin-bottom: 4px; word-break: break-all; }
+        .term-input-line { display: flex; }
+        .term-prompt { color: #00ff00; margin-right: 8px; white-space: nowrap; }
+        .term-input {
+            background: transparent; border: none; color: #00ff00;
+            flex-grow: 1; font-family: inherit; font-size: inherit;
+            outline: none; caret-color: #00ff00;
+        }
+
+        /* 设置 & 关于 */
+        .settings-panel, .about-panel { padding: 20px; }
+        .setting-group { margin-bottom: 20px; }
+        .setting-group h3 { margin-top: 0; font-size: 16px; border-bottom: 1px solid #ddd; padding-bottom: 5px; }
+        .btn-primary {
+            background: var(--primary-color); color: white; border: none;
+            padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 13px;
+        }
+        .btn-primary:hover { opacity: 0.9; }
+        .btn-danger { background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; }
+        
+        /* 文件资源管理器 */
+        .fe-container { display: flex; flex-direction: column; height: 100%; }
+        .fe-toolbar { padding: 8px; background: #f9f9f9; border-bottom: 1px solid #eee; display: flex; gap: 8px; }
+        .fe-path { flex-grow: 1; padding: 4px 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px; }
+        .fe-content {
+            flex-grow: 1; display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 10px; padding: 10px; overflow-y: auto; align-content: start;
+        }
+        .fe-item {
+            display: flex; flex-direction: column; align-items: center;
+            cursor: pointer; padding: 5px; border-radius: 4px; text-align: center;
+            border: 1px solid transparent;
+        }
+        .fe-item:hover { background: rgba(0,120,212,0.1); border-color: rgba(0,120,212,0.3); }
+        .fe-item.selected { background: rgba(0,120,212,0.2); border-color: var(--primary-color); }
+        .fe-item span { font-size: 32px; margin-bottom: 4px; }
+        .fe-item p { margin: 0; font-size: 12px; word-break: break-all; width: 100%; }
+        
+        /* 右键菜单 */
+        #context-menu {
+            position: absolute; background: white; border: 1px solid #ccc;
+            box-shadow: 2px 2px 10px rgba(0,0,0,0.2); border-radius: 4px;
+            display: none; flex-direction: column; z-index: 100000;
+            min-width: 150px; padding: 4px 0;
+        }
+        .ctx-item {
+            padding: 8px 16px; cursor: pointer; font-size: 13px;
+            display: flex; justify-content: space-between;
+        }
+        .ctx-item:hover { background: #f0f0f0; }
+        .ctx-sep { height: 1px; background: #eee; margin: 4px 0; }
+
+        /* 图片查看器 */
+        .img-viewer { width: 100%; height: 100%; display: flex; flex-direction: column; background: #333; }
+        .img-toolbar { padding: 8px; background: #222; color: white; display: flex; gap: 10px; align-items: center; }
+        .img-container { flex-grow: 1; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
+        .img-container img { max-width: 100%; max-height: 100%; object-fit: contain; }
+        .img-input { background: #444; border: none; color: white; padding: 4px; border-radius: 4px; width: 300px; }
+
+        /* 视频播放器 */
+        .vid-player { width: 100%; height: 100%; display: flex; flex-direction: column; background: #000; }
+        .vid-toolbar { padding: 8px; background: #222; color: white; display: flex; gap: 10px; align-items: center; }
+        .vid-container { flex-grow: 1; display: flex; align-items: center; justify-content: center; background: #000; }
+        video { max-width: 100%; max-height: 100%; }
+        .vid-input { background: #444; border: none; color: white; padding: 4px; border-radius: 4px; width: 300px; }
+
+        /* 滚动条 */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.3); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.5); }
+    </style>
+</head>
+<body>
+
+    <!-- 开机动画 -->
+    <div id="boot-screen">
+        <div class="boot-log" id="boot-log"></div>
+        <div class="boot-complete" id="boot-complete" style="display:none">
+            Shiorko OS 已就绪<br>
+            <span style="font-size:12px; font-weight:normal; opacity:0.8">点击任意位置进入系统</span>
+        </div>
+    </div>
+
+    <!-- 桌面 -->
+    <div id="desktop">
+        <div class="desktop-icon" ondblclick="openApp('notepad')"><span>📝</span><p>记事本</p></div>
+        <div class="desktop-icon" ondblclick="openApp('calculator')"><span>🧮</span><p>计算器</p></div>
+        <div class="desktop-icon" ondblclick="openApp('browser')"><span>🌐</span><p>浏览器</p></div>
+        <div class="desktop-icon" ondblclick="openApp('terminal')"><span>💻</span><p>终端</p></div>
+        <div class="desktop-icon" ondblclick="openApp('fileexplorer')"><span>📁</span><p>文件资源</p></div>
+        <div class="desktop-icon" ondblclick="openApp('imageviewer')"><span>🖼️</span><p>图片查看</p></div>
+        <div class="desktop-icon" ondblclick="openApp('videoplayer')"><span>🎬</span><p>视频播放</p></div>
+        <div class="desktop-icon" ondblclick="openApp('settings')"><span>⚙️</span><p>设置</p></div>
+        <div class="desktop-icon" ondblclick="openApp('about')"><span>ℹ️</span><p>关于</p></div>
+    </div>
+
+    <!-- 开始菜单 -->
+    <div id="start-menu">
+        <div class="menu-header">已固定应用</div>
+        <div class="menu-grid">
+            <div class="menu-item" onclick="openApp('browser'); toggleStartMenu()"><span>🌐</span><p>浏览器</p></div>
+            <div class="menu-item" onclick="openApp('fileexplorer'); toggleStartMenu()"><span>📁</span><p>文件</p></div>
+            <div class="menu-item" onclick="openApp('terminal'); toggleStartMenu()"><span>💻</span><p>终端</p></div>
+            <div class="menu-item" onclick="openApp('imageviewer'); toggleStartMenu()"><span>🖼️</span><p>图片</p></div>
+            <div class="menu-item" onclick="openApp('videoplayer'); toggleStartMenu()"><span>🎬</span><p>视频</p></div>
+            <div class="menu-item" onclick="openApp('notepad'); toggleStartMenu()"><span>📝</span><p>记事本</p></div>
+            <div class="menu-item" onclick="openApp('calculator'); toggleStartMenu()"><span>🧮</span><p>计算器</p></div>
+            <div class="menu-item" onclick="openApp('settings'); toggleStartMenu()"><span>⚙️</span><p>设置</p></div>
+        </div>
+        <div class="user-profile">
+            <div class="user-info">
+                <div class="avatar">👤</div>
+                <div><div style="font-weight:bold; font-size:14px;">User</div><div style="font-size:12px; color:#666;">Admin</div></div>
+            </div>
+            <div class="power-btn" onclick="location.reload()" title="重启">🔌</div>
+        </div>
+    </div>
+
+    <!-- 任务栏 -->
+    <div id="taskbar">
+        <div id="start-btn" onclick="toggleStartMenu()">🪟</div>
+        <div id="task-list"></div>
+        <div id="clock"><div id="time">12:00</div><div id="date">2026/03/11</div></div>
+    </div>
+
+    <!-- 右键菜单 -->
+    <div id="context-menu">
+        <div class="ctx-item" onclick="ctxAction('newFile')">新建文件</div>
+        <div class="ctx-item" onclick="ctxAction('newFolder')">新建文件夹</div>
+        <div class="ctx-sep"></div>
+        <div class="ctx-item" onclick="ctxAction('refresh')">刷新</div>
+        <div class="ctx-sep"></div>
+        <div class="ctx-item" onclick="ctxAction('rename')" id="ctx-rename">重命名</div>
+        <div class="ctx-item" onclick="ctxAction('delete')" id="ctx-delete" style="color:red">删除</div>
+        <div class="ctx-item" onclick="ctxAction('edit')" id="ctx-edit">编辑</div>
+    </div>
+
+    <script>
+        // --- 系统配置 ---
+        const CONFIG = { version: "2.0 Ultimate", author: "shiorko", copyright: "© 2026 shiorko." };
+        let zIndexCounter = 100;
+        let windows = {};
+        let activeWindowId = null;
+        let contextTarget = null; // 右键选中的文件对象
+
+        // --- 虚拟文件系统 ---
+        // 结构: { name: { type: 'file'|'dir', content: string|obj, children: {} } }
+        const fileSystem = {
+            'C:': {
+                type: 'dir', children: {
+                    'Users': {
+                        type: 'dir', children: {
+                            'User': {
+                                type: 'dir', children: {
+                                    'documents': {
+                                        type: 'dir', children: {
+                                            'readme.txt': { type: 'file', content: '欢迎使用 Shiorko OS Ultimate!\n由 shiorko 开发。\n支持文件增删改查。' },
+                                            'todo.list': { type: 'file', content: '1. 完成文件系统\n2. 增加多媒体功能' }
+                                        }
+                                    },
+                                    'pictures': { type: 'dir', children: {} },
+                                    'videos': { type: 'dir', children: {} },
+                                    'desktop': { type: 'dir', children: {} }
+                                }
+                            }
+                        }
+                    },
+                    'Windows': { type: 'dir', children: { 'system32': { type: 'dir', children: {} } } },
+                    'Program Files': { type: 'dir', children: {} }
+                }
+            }
+        };
+        let currentPath = ['C:', 'Users', 'User'];
+
+        // --- 应用定义 ---
+        const apps = {
+            'notepad': { title: '记事本', icon: '📝', w: 450, h: 350, content: `<textarea class="notepad-area" id="np-TEMP_ID" placeholder="输入内容..." oninput="saveNotepad('TEMP_ID', this.value)"></textarea>` },
+            'calculator': { title: '计算器', icon: '🧮', w: 260, h: 340, content: `<div class="calc-grid"><div class="calc-display" id="calc-TEMP_ID">0</div><button class="calc-btn" onclick="calcOp('TEMP_ID','C')">C</button><button class="calc-btn op" onclick="calcOp('TEMP_ID','/')">÷</button><button class="calc-btn op" onclick="calcOp('TEMP_ID','*')">×</button><button class="calc-btn op" onclick="calcOp('TEMP_ID','-')">-</button><button class="calc-btn" onclick="calcOp('TEMP_ID','7')">7</button><button class="calc-btn" onclick="calcOp('TEMP_ID','8')">8</button><button class="calc-btn" onclick="calcOp('TEMP_ID','9')">9</button><button class="calc-btn op" onclick="calcOp('TEMP_ID','+')">+</button><button class="calc-btn" onclick="calcOp('TEMP_ID','4')">4</button><button class="calc-btn" onclick="calcOp('TEMP_ID','5')">5</button><button class="calc-btn" onclick="calcOp('TEMP_ID','6')">6</button><button class="calc-btn eq" style="grid-row:span 2" onclick="calcOp('TEMP_ID','=')">=</button><button class="calc-btn" onclick="calcOp('TEMP_ID','1')">1</button><button class="calc-btn" onclick="calcOp('TEMP_ID','2')">2</button><button class="calc-btn" onclick="calcOp('TEMP_ID','3')">3</button><button class="calc-btn" style="grid-column:span 2" onclick="calcOp('TEMP_ID','0')">0</button><button class="calc-btn" onclick="calcOp('TEMP_ID','.')">.</button></div>` },
+            'browser': { title: 'Web 浏览器', icon: '🌐', w: 800, h: 500, content: `<div class="browser-bar"><button onclick="navBrowser('TEMP_ID')">🔄</button><input type="text" class="url-input" id="url-TEMP_ID" value="https://dick.shiorko.dpdns.org/" onkeydown="if(event.key==='Enter')loadUrl('TEMP_ID')"><button class="btn-primary" onclick="loadUrl('TEMP_ID')">访问</button></div><iframe id="frame-TEMP_ID" class="browser-frame" src="https://dick.shiorko.dpdns.org/"></iframe>` },
+            'terminal': { title: '终端', icon: '💻', w: 600, h: 400, content: `<div class="terminal-window" id="term-TEMP_ID" onclick="document.getElementById('inp-TEMP_ID').focus()"><div class="term-line">Shiorko OS [Version ${CONFIG.version}]</div><div class="term-line">${CONFIG.copyright}</div><br><div id="hist-TEMP_ID"></div><div class="term-input-line"><span class="term-prompt" id="prompt-TEMP_ID">C:\\Users\\User></span><input type="text" class="term-input" id="inp-TEMP_ID" autocomplete="off" onkeydown="handleTerm(event,'TEMP_ID')"></div></div>` },
+            'fileexplorer': { title: '文件资源管理器', icon: '📁', w: 600, h: 400, content: `<div class="fe-container"><div class="fe-toolbar"><button class="btn-primary" onclick="feUp('TEMP_ID')">↑ 上级</button><input type="text" class="fe-path" id="path-TEMP_ID" readonly><button class="btn-primary" onclick="renderFiles('TEMP_ID')">刷新</button></div><div class="fe-content" id="content-TEMP_ID" oncontextmenu="showCtx(event, 'TEMP_ID', null)"></div></div>` },
+            'imageviewer': { title: '图片查看器', icon: '🖼️', w: 600, h: 450, content: `<div class="img-viewer"><div class="img-toolbar"><input type="file" id="img-file-TEMP_ID" accept="image/*" style="display:none" onchange="loadLocalImg('TEMP_ID', this)"><button class="btn-primary" onclick="document.getElementById('img-file-TEMP_ID').click()">打开本地</button><input type="text" class="img-input" id="img-url-TEMP_ID" placeholder="输入图片 URL"><button class="btn-primary" onclick="loadUrlImg('TEMP_ID')">加载网络</button></div><div class="img-container"><img id="img-disp-TEMP_ID" src="" style="display:none"></div></div>` },
+            'videoplayer': { title: '视频播放器', icon: '🎬', w: 700, h: 500, content: `<div class="vid-player"><div class="vid-toolbar"><input type="file" id="vid-file-TEMP_ID" accept="video/*" style="display:none" onchange="loadLocalVid('TEMP_ID', this)"><button class="btn-primary" onclick="document.getElementById('vid-file-TEMP_ID').click()">打开本地</button><input type="text" class="vid-input" id="vid-url-TEMP_ID" placeholder="输入视频 URL (mp4)"><button class="btn-primary" onclick="loadUrlVid('TEMP_ID')">加载网络</button></div><div class="vid-container"><video id="vid-disp-TEMP_ID" controls style="display:none"></video></div></div>` },
+            'settings': { title: '设置', icon: '⚙️', w: 450, h: 350, content: `<div class="settings-panel"><div class="setting-group"><h3>个性化</h3><p>壁纸 URL:</p><input type="text" id="bg-input" style="width:100%;padding:8px;margin:5px 0;" value="${getComputedStyle(document.documentElement).getPropertyValue('--bg-image').replace(/url\(['"]?|['"]?\)/g,'')}"><button class="btn-primary" onclick="changeBg()">应用</button> <button class="btn-danger" onclick="resetBg()">重置</button></div><div class="setting-group"><h3>系统</h3><p>版本: ${CONFIG.version}</p><p>开发者: ${CONFIG.author}</p></div></div>` },
+            'about': { title: '关于', icon: 'ℹ️', w: 350, h: 250, content: `<div class="about-panel" style="text-align:center;padding-top:30px;"><h1 style="color:var(--primary-color)">Shiorko OS</h1><p>Ultimate Edition v${CONFIG.version}</p><div style="font-size:40px;margin:20px">💻</div><p>纯前端操作系统模拟</p><hr style="border:0;border-top:1px solid #eee;margin:20px 0"><p style="font-size:12px;color:#999">${CONFIG.copyright}</p></div>` }
+        };
+
+        // --- 初始化 ---
+        window.onload = function() {
+            runBootSequence();
+            updateClock();
+            setInterval(updateClock, 1000);
+            
+            // 点击桌面关闭菜单
+            document.getElementById('desktop').addEventListener('mousedown', e => {
+                if(e.target.id === 'desktop') {
+                    document.getElementById('start-menu').style.display = 'none';
+                    hideCtx();
+                }
+            });
+            
+            // 全局点击隐藏右键菜单
+            document.addEventListener('click', e => {
+                if(!e.target.closest('#context-menu')) hideCtx();
+            });
+
+            // 尝试全屏 (需要用户交互)
+            document.body.addEventListener('click', () => {
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen().catch(err => {
+                        console.log("全屏被阻止，需用户交互");
+                    });
+                }
+            }, { once: true });
+        };
+
+        function runBootSequence() {
+            const log = document.getElementById('boot-log');
+            const steps = [
+                "初始化内核...",
+                "加载 Shiorko 文件系统驱动...",
+                "挂载虚拟磁盘 C:...",
+                "初始化图形界面子系统...",
+                "加载用户配置...",
+                "启动网络服务...",
+                "检查更新... (无更新)",
+                "准备就绪。"
+            ];
+            let i = 0;
+            const interval = setInterval(() => {
+                if(i >= steps.length) {
+                    clearInterval(interval);
+                    document.getElementById('boot-complete').style.display = 'block';
+                    setTimeout(() => {
+                        document.getElementById('boot-screen').style.opacity = '0';
+                        setTimeout(() => document.getElementById('boot-screen').remove(), 1000);
+                    }, 800);
+                    return;
+                }
+                const div = document.createElement('div');
+                div.innerText = `[ OK ] ${steps[i]}`;
+                log.appendChild(div);
+                i++;
+            }, 300);
+        }
+
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('time').innerText = now.toLocaleTimeString('zh-CN', {hour:'2-digit', minute:'2-digit'});
+            document.getElementById('date').innerText = now.toLocaleDateString('zh-CN');
+        }
+
+        function toggleStartMenu() {
+            const m = document.getElementById('start-menu');
+            m.style.display = m.style.display === 'flex' ? 'none' : 'flex';
+        }
+
+        // --- 窗口管理 ---
+        function openApp(appId) {
+            const id = appId + '-' + Date.now();
+            const app = apps[appId];
+            if(!app) return;
+
+            const win = document.createElement('div');
+            win.className = 'window';
+            win.id = id;
+            win.style.width = app.w + 'px';
+            win.style.height = app.h + 'px';
+            win.style.top = (50 + (Object.keys(windows).length * 30)) + 'px';
+            win.style.left = (50 + (Object.keys(windows).length * 30)) + 'px';
+            win.style.zIndex = ++zIndexCounter;
+
+            win.innerHTML = `
+                <div class="title-bar" onmousedown="startDrag(event, '${id}')">
+                    <div class="title-drag-area"><span style="margin-right:8px">${app.icon}</span>${app.title}</div>
+                    <div class="window-controls">
+                        <button class="control-btn btn-min" onclick="minimizeWindow('${id}')"></button>
+                        <button class="control-btn btn-max" onclick="maximizeWindow('${id}')"></button>
+                        <button class="control-btn btn-close" onclick="closeWindow('${id}')"></button>
+                    </div>
+                </div>
+                <div class="window-content">${app.content.replace(/TEMP_ID/g, id)}</div>
+            `;
+            win.addEventListener('mousedown', () => activateWindow(id));
+            document.body.appendChild(win);
+            
+            windows[id] = { el: win, appId, minimized: false, maximized: false, prev: null };
+            addToTaskbar(id, app.icon, app.title);
+            activateWindow(id);
+
+            if(appId === 'fileexplorer') renderFiles(id);
+            if(appId === 'terminal') setTimeout(() => document.getElementById(`inp-${id}`).focus(), 100);
+        }
+
+        function activateWindow(id) {
+            if(!windows[id]) return;
+            const win = windows[id].el;
+            if(windows[id].minimized) {
+                win.classList.remove('minimized');
+                windows[id].minimized = false;
+            }
+            win.style.zIndex = ++zIndexCounter;
+            activeWindowId = id;
+            updateTaskbarActive(id);
+        }
+
+        function closeWindow(id) {
+            const win = windows[id].el;
+            win.style.opacity = '0'; win.style.transform = 'scale(0.9)';
+            setTimeout(() => { win.remove(); delete windows[id]; removeFromTaskbar(id); }, 200);
+        }
+
+        function minimizeWindow(id) {
+            windows[id].el.classList.add('minimized');
+            windows[id].minimized = true;
+            updateTaskbarActive(null);
+        }
+
+        function maximizeWindow(id) {
+            const d = windows[id];
+            if(!d.maximized) {
+                d.prev = { top: d.el.style.top, left: d.el.style.left, width: d.el.style.width, height: d.el.style.height };
+                d.el.classList.add('maximized'); d.maximized = true;
+            } else {
+                d.el.classList.remove('maximized');
+                Object.assign(d.el.style, d.prev); d.maximized = false;
+            }
+        }
+
+        // 拖拽
+        let drag = { active: false, id: null, ox: 0, oy: 0 };
+        function startDrag(e, id) {
+            if(e.target.closest('.window-controls') || windows[id].maximized) return;
+            drag.active = true; drag.id = id;
+            const rect = windows[id].el.getBoundingClientRect();
+            drag.ox = e.clientX - rect.left; drag.oy = e.clientY - rect.top;
+            activateWindow(id);
+        }
+        document.addEventListener('mousemove', e => {
+            if(!drag.active) return;
+            const win = windows[drag.id].el;
+            let x = e.clientX - drag.ox, y = e.clientY - drag.oy;
+            if(y<0) y=0; if(x<0) x=0;
+            win.style.left = x+'px'; win.style.top = y+'px';
+        });
+        document.addEventListener('mouseup', () => { drag.active = false; });
+
+        // 任务栏
+        function addToTaskbar(id, icon, title) {
+            const item = document.createElement('div');
+            item.className = 'task-item active running'; item.id = 'task-'+id; item.title = title;
+            item.innerHTML = icon;
+            item.onclick = () => windows[id].minimized || activeWindowId !== id ? activateWindow(id) : minimizeWindow(id);
+            document.getElementById('task-list').appendChild(item);
+        }
+        function removeFromTaskbar(id) { const i = document.getElementById('task-'+id); if(i) i.remove(); }
+        function updateTaskbarActive(id) {
+            document.querySelectorAll('.task-item').forEach(i => i.classList.remove('active'));
+            if(id) document.getElementById('task-'+id)?.classList.add('active');
+        }
+
+        // --- 应用逻辑 ---
+
+        // 记事本
+        function saveNotepad(id, val) { localStorage.setItem('shiorko_notepad', val); }
+        // 初始化记事本内容
+        const savedNote = localStorage.getItem('shiorko_notepad');
+        if(savedNote) {
+            // 如果有打开的记事本则更新，这里简化处理，只在打开时由用户输入
+        }
+
+        // 计算器
+        window.calcOp = (id, v) => {
+            const d = document.getElementById('calc-'+id);
+            if(v==='C') d.innerText='0';
+            else if(v==='=') try{ d.innerText=eval(d.innerText); }catch{ d.innerText='Err'; }
+            else d.innerText = d.innerText==='0'&&!'+-*/.'.includes(v)?v:d.innerText+v;
+        };
+
+        // 浏览器
+        window.loadUrl = id => {
+            const u = document.getElementById('url-'+id).value.trim();
+            document.getElementById('frame-'+id).src = u.startsWith('http')?u:'https://'+u;
+        };
+        window.navBrowser = id => document.getElementById('frame-'+id).contentWindow.location.reload();
+
+        // 终端 (完整文件系统操作)
+        window.handleTerm = (e, id) => {
+            if(e.key !== 'Enter') return;
+            const inp = document.getElementById('inp-'+id);
+            const hist = document.getElementById('hist-'+id);
+            const cmdLine = inp.value.trim();
+            
+            hist.innerHTML += `<div class="term-line"><span style="color:#0f0">${document.getElementById('prompt-'+id).innerText}</span> ${cmdLine}</div>`;
+            inp.value = '';
+            
+            const args = cmdLine.split(' ');
+            const cmd = args[0].toLowerCase();
+            let out = '';
+
+            const getObj = () => {
+                let curr = fileSystem['C:'];
+                for(let i=1; i<currentPath.length; i++) curr = curr.children[currentPath[i]];
+                return curr;
+            };
+            const updatePrompt = () => {
+                document.querySelectorAll('[id^="prompt-"]').forEach(el => el.innerText = currentPath.join('\\') + '>');
+                document.querySelectorAll('[id^="path-"]').forEach(el => el.value = currentPath.join('\\'));
+            };
+
+            switch(cmd) {
+                case 'help': out = '命令: ls, cd, mkdir, touch, rm, edit, rename, cat, clear, date, whoami, reboot'; break;
+                case 'clear': hist.innerHTML = ''; out = null; break;
+                case 'date': out = new Date().toString(); break;
+                case 'whoami': out = 'User (Admin)'; break;
+                case 'reboot': location.reload(); break;
+                case 'ls': 
+                    const obj = getObj();
+                    out = Object.keys(obj.children).map(k => 
+                        `<span style="color:${obj.children[k].type==='dir'?'#ff0':'#fff'}">${obj.children[k].type==='dir'?'[DIR]':'[FILE]'}</span> ${k}`
+                    ).join('<br>');
+                    break;
+                case 'cd':
+                    if(!args[1]) break;
+                    if(args[1] === '..') { if(currentPath.length>1) currentPath.pop(); }
+                    else if(args[1] === 'C:') currentPath = ['C:'];
+                    else {
+                        const curr = getObj();
+                        if(curr.children[args[1]] && curr.children[args[1]].type === 'dir') currentPath.push(args[1]);
+                        else out = `目录不存在: ${args[1]}`;
+                    }
+                    updatePrompt(); break;
+                case 'mkdir':
+                    if(!args[1]) out = '用法: mkdir <name>';
+                    else {
+                        const curr = getObj();
+                        if(curr.children[args[1]]) out = '已存在';
+                        else curr.children[args[1]] = { type: 'dir', children: {} };
+                    }
+                    break;
+                case 'touch':
+                    if(!args[1]) out = '用法: touch <name>';
+                    else {
+                        const curr = getObj();
+                        if(!curr.children[args[1]]) curr.children[args[1]] = { type: 'file', content: '' };
+                    }
+                    break;
+                case 'rm':
+                    if(!args[1]) out = '用法: rm <name>';
+                    else {
+                        const curr = getObj();
+                        if(curr.children[args[1]]) delete curr.children[args[1]];
+                        else out = '未找到';
+                    }
+                    break;
+                case 'edit':
+                    if(!args[1]) out = '用法: edit <file> <content>';
+                    else {
+                        const curr = getObj();
+                        const name = args[1];
+                        const content = args.slice(2).join(' ');
+                        if(curr.children[name] && curr.children[name].type === 'file') {
+                            curr.children[name].content = content;
+                            out = '文件已更新';
+                        } else out = '文件不存在或不是普通文件';
+                    }
+                    break;
+                case 'rename':
+                    if(!args[1] || !args[2]) out = '用法: rename <old> <new>';
+                    else {
+                        const curr = getObj();
+                        if(curr.children[args[1]] && !curr.children[args[2]]) {
+                            curr.children[args[2]] = curr.children[args[1]];
+                            delete curr.children[args[1]];
+                            out = '重命名成功';
+                        } else out = '操作失败';
+                    }
+                    break;
+                case 'cat':
+                    if(!args[1]) out = '用法: cat <file>';
+                    else {
+                        const curr = getObj();
+                        if(curr.children[args[1]] && curr.children[args[1]].type === 'file') {
+                            out = curr.children[args[1]].content.replace(/\n/g, '<br>');
+                        } else out = '文件未找到';
+                    }
+                    break;
+                default: out = cmd ? `'${cmd}' 不是内部命令` : '';
+            }
+            if(out) hist.innerHTML += `<div class="term-line" style="color:#ccc;margin-bottom:10px">${out}</div>`;
+            const term = document.getElementById('term-'+id);
+            term.scrollTop = term.scrollHeight;
+        };
+
+        // 文件资源管理器
+        function renderFiles(id) {
+            const cont = document.getElementById('content-'+id);
+            const pathInp = document.getElementById('path-'+id);
+            const obj = (() => {
+                let c = fileSystem['C:'];
+                for(let i=1; i<currentPath.length; i++) c = c.children[currentPath[i]];
+                return c;
+            })();
+            
+            pathInp.value = currentPath.join('\\');
+            cont.innerHTML = '';
+            
+            Object.keys(obj.children).forEach(k => {
+                const isDir = obj.children[k].type === 'dir';
+                const div = document.createElement('div');
+                div.className = 'fe-item';
+                div.innerHTML = `<span>${isDir?'📁':'📄'}</span><p>${k}</p>`;
+                div.ondblclick = () => {
+                    if(isDir) { currentPath.push(k); renderFiles(id); }
+                    else {
+                        // 简单判断扩展名打开
+                        if(k.endsWith('.txt')) {
+                            const npId = 'notepad-'+Date.now();
+                            openApp('notepad');
+                            setTimeout(() => {
+                                const area = document.getElementById(`np-${npId}`);
+                                if(area) area.value = obj.children[k].content;
+                            }, 100);
+                        } else if (k.match(/\.(jpg|jpeg|png|gif)$/i)) {
+                            // 模拟打开图片 (实际内容在内存，这里仅提示)
+                            alert(`正在打开图片: ${k}\n(请在图片查看器中通过URL或本地文件查看)`);
+                        } else {
+                            alert(`打开文件: ${k}`);
+                        }
+                    }
+                };
+                div.oncontextmenu = (e) => {
+                    e.stopPropagation();
+                    contextTarget = { name: k, parent: obj };
+                    showCtx(e, id, div);
+                };
+                cont.appendChild(div);
+            });
+            
+            // 空白处右键
+            cont.oncontextmenu = (e) => {
+                if(e.target === cont) {
+                    contextTarget = { parent: obj };
+                    showCtx(e, id, null);
+                }
+            };
+        }
+
+        function feUp(id) {
+            if(currentPath.length > 1) {
+                currentPath.pop();
+                renderFiles(id);
+            }
+        }
+
+        // 右键菜单
+        function showCtx(e, winId, targetEl) {
+            const menu = document.getElementById('context-menu');
+            menu.style.display = 'flex';
+            menu.style.left = e.clientX + 'px';
+            menu.style.top = e.clientY + 'px';
+            
+            // 根据是否有选中文件显示/隐藏菜单项
+            const isFile = targetEl !== null;
+            document.getElementById('ctx-rename').style.display = isFile ? 'flex' : 'none';
+            document.getElementById('ctx-delete').style.display = isFile ? 'flex' : 'none';
+            document.getElementById('ctx-edit').style.display = (isFile && contextTarget.parent.children[contextTarget.name].type === 'file') ? 'flex' : 'none';
+            
+            // 存储当前操作的窗口ID以便刷新
+            menu.dataset.winId = winId;
+        }
+
+        function hideCtx() { document.getElementById('context-menu').style.display = 'none'; }
+
+        window.ctxAction = (action) => {
+            const winId = document.getElementById('context-menu').dataset.winId;
+            if(!winId) return;
+            
+            if(action === 'newFile') {
+                const name = prompt("文件名:", "new.txt");
+                if(name && !contextTarget.parent.children[name]) {
+                    contextTarget.parent.children[name] = { type: 'file', content: '' };
+                    renderFiles(winId);
+                }
+            } else if(action === 'newFolder') {
+                const name = prompt("文件夹名:", "New Folder");
+                if(name && !contextTarget.parent.children[name]) {
+                    contextTarget.parent.children[name] = { type: 'dir', children: {} };
+                    renderFiles(winId);
+                }
+            } else if(action === 'delete') {
+                if(confirm(`确定删除 ${contextTarget.name}?`)) {
+                    delete contextTarget.parent.children[contextTarget.name];
+                    renderFiles(winId);
+                }
+            } else if(action === 'rename') {
+                const newName = prompt("新名字:", contextTarget.name);
+                if(newName && newName !== contextTarget.name && !contextTarget.parent.children[newName]) {
+                    contextTarget.parent.children[newName] = contextTarget.parent.children[contextTarget.name];
+                    delete contextTarget.parent.children[contextTarget.name];
+                    renderFiles(winId);
+                }
+            } else if(action === 'edit') {
+                const content = prompt("编辑内容:", contextTarget.parent.children[contextTarget.name].content);
+                if(content !== null) {
+                    contextTarget.parent.children[contextTarget.name].content = content;
+                }
+            } else if(action === 'refresh') {
+                renderFiles(winId);
+            }
+            hideCtx();
+        };
+
+        // 图片查看器
+        window.loadLocalImg = (id, input) => {
+            const file = input.files[0];
+            if(file) {
+                const url = URL.createObjectURL(file);
+                const img = document.getElementById('img-disp-'+id);
+                img.src = url;
+                img.style.display = 'block';
+            }
+        };
+        window.loadUrlImg = (id) => {
+            const url = document.getElementById('img-url-'+id).value;
+            if(url) {
+                const img = document.getElementById('img-disp-'+id);
+                img.src = url;
+                img.style.display = 'block';
+            }
+        };
+
+        // 视频播放器
+        window.loadLocalVid = (id, input) => {
+            const file = input.files[0];
+            if(file) {
+                const url = URL.createObjectURL(file);
+                const vid = document.getElementById('vid-disp-'+id);
+                vid.src = url;
+                vid.style.display = 'block';
+                vid.play();
+            }
+        };
+        window.loadUrlVid = (id) => {
+            const url = document.getElementById('vid-url-'+id).value;
+            if(url) {
+                const vid = document.getElementById('vid-disp-'+id);
+                vid.src = url;
+                vid.style.display = 'block';
+                vid.play();
+            }
+        };
+
+        // 设置
+        window.changeBg = () => {
+            const url = document.getElementById('bg-input').value;
+            document.documentElement.style.setProperty('--bg-image', `url('${url}')`);
+        };
+        window.resetBg = () => {
+            const def = 'https://file.shiorko.dpdns.org/file/VRC.png';
+            document.getElementById('bg-input').value = def;
+            document.documentElement.style.setProperty('--bg-image', `url('${def}')`);
+        };
+
+    </script>
+</body>
+</html>
