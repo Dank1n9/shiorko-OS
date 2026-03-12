@@ -38,7 +38,6 @@
             transition: transform 10s ease;
             z-index: -1;
         }
-        /* 微动效 */
         #wallpaper.animate { transform: scale(1.05); }
 
         /* --- 开机动画 (复杂版) --- */
@@ -58,7 +57,7 @@
         #boot-log {
             flex-grow: 1; overflow: hidden;
             font-size: 13px; line-height: 1.5;
-            display: flex; flex-direction: column-reverse; /* 新日志在底部 */
+            display: flex; flex-direction: column-reverse;
             opacity: 0.9;
         }
         .log-entry { margin-bottom: 2px; animation: fadeIn 0.1s forwards; }
@@ -189,7 +188,6 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.2);
         }
         
-        /* 任务栏小组件区域 */
         #taskbar-widgets {
             display: flex; gap: 12px; align-items: center;
             padding: 0 10px; border-left: 1px solid rgba(255,255,255,0.15);
@@ -205,7 +203,6 @@
         .widget-icon { font-size: 16px; }
         .widget-value { font-weight: 600; }
         
-        /* 资源监控小图表 */
         .mini-chart {
             width: 40px; height: 20px; display: flex; align-items: flex-end; gap: 2px;
         }
@@ -220,7 +217,6 @@
         }
         #clock:hover { background: rgba(255,255,255,0.1); border-radius: 6px; }
 
-        /* --- 开始菜单 --- */
         #start-menu {
             position: absolute; bottom: 58px; left: 10px;
             width: 360px; height: 520px;
@@ -267,7 +263,6 @@
         }
         .power-btn:hover { background: rgba(211, 47, 47, 0.1); }
 
-        /* --- 通用组件 --- */
         .btn-primary {
             background: var(--primary-color); color: white; border: none;
             padding: 8px 16px; border-radius: 6px; cursor: pointer;
@@ -276,7 +271,6 @@
         .btn-primary:hover { opacity: 0.9; }
         .btn-danger { background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; }
         
-        /* 模态框 (欢迎提示) */
         #modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.5); backdrop-filter: blur(5px);
@@ -293,7 +287,6 @@
         .modal-title { font-size: 20px; font-weight: bold; margin-bottom: 10px; color: #333; }
         .modal-msg { font-size: 15px; color: #666; margin-bottom: 25px; line-height: 1.5; }
 
-        /* --- 应用特定样式 --- */
         /* 终端 */
         .terminal-window {
             background: #1e1e1e; color: #00ff00; height: 100%;
@@ -346,7 +339,6 @@
             padding: 10px; resize: none; outline: none;
         }
 
-        /* 右键菜单 */
         #context-menu {
             position: absolute; background: rgba(255,255,255,0.95);
             backdrop-filter: blur(10px); border: 1px solid rgba(0,0,0,0.1);
@@ -366,10 +358,8 @@
 </head>
 <body>
 
-    <!-- 壁纸 -->
     <div id="wallpaper"></div>
 
-    <!-- 开机动画 -->
     <div id="boot-screen">
         <div class="boot-logo">
             <span>◆</span> Shiorko OS <span style="font-size:14px; color:#aaa; margin-left:10px;">UTP Build 2026.03</span>
@@ -383,7 +373,6 @@
         </div>
     </div>
 
-    <!-- 欢迎模态框 -->
     <div id="modal-overlay">
         <div class="modal-box">
             <div class="modal-icon">🚀</div>
@@ -393,7 +382,6 @@
         </div>
     </div>
 
-    <!-- 桌面 (新增音乐播放器图标) -->
     <div id="desktop">
         <div class="desktop-icon" ondblclick="openApp('notepad')"><span>📝</span><p>记事本</p></div>
         <div class="desktop-icon" ondblclick="openApp('codeeditor')"><span>💻</span><p>代码编辑器</p></div>
@@ -405,12 +393,11 @@
         <div class="desktop-icon" ondblclick="openApp('calendar')"><span>📅</span><p>日历</p></div>
         <div class="desktop-icon" ondblclick="openApp('imageviewer')"><span>🖼️</span><p>图片查看</p></div>
         <div class="desktop-icon" ondblclick="openApp('videoplayer')"><span>🎬</span><p>视频播放</p></div>
-        <div class="desktop-icon" ondblclick="openApp('musicplayer')"><span>🎵</span><p>音乐播放</p></div> <!-- 新增 -->
+        <div class="desktop-icon" ondblclick="openApp('musicplayer')"><span>🎵</span><p>音乐播放</p></div>
         <div class="desktop-icon" ondblclick="openApp('settings')"><span>⚙️</span><p>设置</p></div>
         <div class="desktop-icon" ondblclick="openApp('about')"><span>ℹ️</span><p>关于 UTP</p></div>
     </div>
 
-    <!-- 开始菜单 (新增音乐播放器) -->
     <div id="start-menu">
         <div class="menu-search">
             <span>🔍</span> <input type="text" placeholder="搜索应用、文件和设置..." style="border:none; outline:none; width:100%; background:transparent;">
@@ -426,7 +413,7 @@
             <div class="menu-item" onclick="openApp('codeeditor'); toggleStartMenu()"><span>💻</span><p>代码</p></div>
             <div class="menu-item" onclick="openApp('imageviewer'); toggleStartMenu()"><span>🖼️</span><p>图片</p></div>
             <div class="menu-item" onclick="openApp('videoplayer'); toggleStartMenu()"><span>🎬</span><p>视频</p></div>
-            <div class="menu-item" onclick="openApp('musicplayer'); toggleStartMenu()"><span>🎵</span><p>音乐</p></div> <!-- 新增 -->
+            <div class="menu-item" onclick="openApp('musicplayer'); toggleStartMenu()"><span>🎵</span><p>音乐</p></div>
             <div class="menu-item" onclick="openApp('calculator'); toggleStartMenu()"><span>🧮</span><p>计算器</p></div>
             <div class="menu-item" onclick="openApp('settings'); toggleStartMenu()"><span>⚙️</span><p>设置</p></div>
         </div>
@@ -442,18 +429,13 @@
         </div>
     </div>
 
-    <!-- 任务栏 -->
     <div id="taskbar">
         <div id="start-btn" onclick="toggleStartMenu()">🪟</div>
         <div id="task-list"></div>
-        
-        <!-- 小组件区域 -->
         <div id="taskbar-widgets">
             <div class="widget" title="CPU 使用率">
                 <span class="widget-icon">📊</span>
-                <div class="mini-chart" id="cpu-chart">
-                    <!-- JS 生成 bars -->
-                </div>
+                <div class="mini-chart" id="cpu-chart"></div>
                 <span class="widget-value" id="cpu-val">0%</span>
             </div>
             <div class="widget" title="内存 使用率">
@@ -466,14 +448,12 @@
                 <span class="widget-value" id="weather-temp">24°C</span>
             </div>
         </div>
-
         <div id="clock">
             <div id="time">12:00</div>
             <div id="date">2026/03/11</div>
         </div>
     </div>
 
-    <!-- 右键菜单 -->
     <div id="context-menu">
         <div class="ctx-item" onclick="ctxAction('newFile')">📄 新建文件</div>
         <div class="ctx-item" onclick="ctxAction('newFolder')">📁 新建文件夹</div>
@@ -486,7 +466,6 @@
     </div>
 
     <script>
-        // --- 系统配置 ---
         const CONFIG = {
             name: "Shiorko OS UTP",
             version: "Ultimate Pro 2026",
@@ -501,7 +480,6 @@
         let commandHistory = [];
         let historyIndex = -1;
 
-        // --- 虚拟文件系统 (增强) ---
         const fileSystem = {
             'C:': {
                 type: 'dir', children: {
@@ -535,14 +513,13 @@
         };
         let currentPath = ['C:', 'Users', 'User'];
 
-        // --- 应用定义 (修改codeeditor为Python示例，新增musicplayer) ---
+        // 修改浏览器默认地址为 pr.shiorko.dpdns.org
         const apps = {
             'notepad': { title: '记事本', icon: '📝', w: 450, h: 350, content: `<textarea class="notepad-area" id="np-TEMP_ID" placeholder="输入内容..." style="width:100%;height:100%;border:none;resize:none;outline:none;font-family:monospace;padding:10px;" oninput="saveNotepad('TEMP_ID', this.value)"></textarea>` },
-            // 代码编辑器改成python语言
             'codeeditor': { title: '代码编辑器 (Python)', icon: '💻', w: 500, h: 400, content: `<div class="code-editor"><div class="line-numbers" id="ln-TEMP_ID">1</div><textarea class="code-area" id="code-TEMP_ID" spellcheck="false" oninput="updateLines('TEMP_ID', this)"># Python 3\n\ndef hello():\n    print("Hello, Shiorko OS!")\n\nif __name__ == "__main__":\n    hello()</textarea></div>` },
             'calculator': { title: '计算器', icon: '🧮', w: 260, h: 360, content: `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:10px;height:100%"><div id="calc-disp-TEMP_ID" style="grid-column:span 4;background:#fff;border:1px solid #ccc;text-align:right;padding:15px;font-size:24px;border-radius:6px;margin-bottom:5px;font-family:monospace">0</div><button class="btn-calc" style="grid-column:span 4;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;border:none;background:transparent;padding:0" onclick="event.stopPropagation()">${['C','/','*','-', '7','8','9','+', '4','5','6','=', '1','2','3','.', '0'].map(k=>`<button onclick="calcOp('TEMP_ID','${k}')" style="border:none;border-radius:4px;font-size:18px;cursor:pointer;background:${['+','-','*','/','='].includes(k)?'#e8f4ff':'#fff'};color:${k==='='?'#fff':'#333'};background:${k==='='?'var(--primary-color)':(['+','-','*','/'].includes(k)?'#e8f4ff':'#fff')};height:45px">${k}</button>`).join('')}</button></div>` },
-            'browser': { title: 'Web 浏览器', icon: '🌐', w: 800, h: 500, content: `<div style="display:flex;flex-direction:column;height:100%"><div style="padding:8px;background:#f1f1f1;border-bottom:1px solid #ddd;display:flex;gap:8px"><button onclick="document.getElementById('frame-TEMP_ID').contentWindow.location.reload()">🔄</button><input type="text" id="url-TEMP_ID" value="https://dick.shiorko.dpdns.org/" style="flex-grow:1;padding:4px 8px;border:1px solid #ccc;border-radius:4px" onkeydown="if(event.key==='Enter')loadUrl('TEMP_ID')"><button class="btn-primary" onclick="loadUrl('TEMP_ID')">访问</button></div><iframe id="frame-TEMP_ID" style="flex-grow:1;border:none;background:#fff" src="https://dick.shiorko.dpdns.org/"></iframe></div>` },
-            // 终端汉化 (内容在初始化时修改)
+            // 浏览器默认网址修改为 https://pr.shiorko.dpdns.org
+            'browser': { title: 'Web 浏览器', icon: '🌐', w: 800, h: 500, content: `<div style="display:flex;flex-direction:column;height:100%"><div style="padding:8px;background:#f1f1f1;border-bottom:1px solid #ddd;display:flex;gap:8px"><button onclick="document.getElementById('frame-TEMP_ID').contentWindow.location.reload()">🔄</button><input type="text" id="url-TEMP_ID" value="https://pr.shiorko.dpdns.org" style="flex-grow:1;padding:4px 8px;border:1px solid #ccc;border-radius:4px" onkeydown="if(event.key==='Enter')loadUrl('TEMP_ID')"><button class="btn-primary" onclick="loadUrl('TEMP_ID')">访问</button></div><iframe id="frame-TEMP_ID" style="flex-grow:1;border:none;background:#fff" src="https://pr.shiorko.dpdns.org"></iframe></div>` },
             'terminal': { title: '终端 (PowerShell)', icon: '⌨️', w: 650, h: 420, content: `<div class="terminal-window" id="term-TEMP_ID" onclick="document.getElementById('inp-TEMP_ID').focus()"><div class="term-line">Shiorko OS UTP [版本 ${CONFIG.version}]</div><div class="term-line">${CONFIG.copyright}</div><div class="term-line">欢迎使用 中文终端</div><br><div id="hist-TEMP_ID"></div><div class="term-input-line"><span class="term-prompt" id="prompt-TEMP_ID">C:\\Users\\User></span><input type="text" class="term-input" id="inp-TEMP_ID" autocomplete="off" onkeydown="handleTerm(event,'TEMP_ID')"></div></div>` },
             'fileexplorer': { title: '文件资源管理器', icon: '📁', w: 650, h: 420, content: `<div style="display:flex;flex-direction:column;height:100%"><div style="padding:8px;background:#f9f9f9;border-bottom:1px solid #eee;display:flex;gap:8px"><button class="btn-primary" onclick="feUp('TEMP_ID')">↑ 上级</button><input type="text" id="path-TEMP_ID" readonly style="flex-grow:1;padding:4px 8px;border:1px solid #ddd;border-radius:4px"><button class="btn-primary" onclick="renderFiles('TEMP_ID')">刷新</button></div><div id="content-TEMP_ID" style="flex-grow:1;display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:10px;padding:10px;overflow-y:auto;align-content:start" oncontextmenu="showCtx(event, 'TEMP_ID', null)"></div></div>` },
             'paint': { title: '画图板', icon: '🎨', w: 600, h: 450, content: `<div style="display:flex;flex-direction:column;height:100%"><div class="paint-toolbar"><input type="color" id="color-TEMP_ID" class="color-picker" value="#000000"><input type="range" id="size-TEMP_ID" min="1" max="20" value="3"><button class="btn-primary" onclick="clearCanvas('TEMP_ID')">清空</button><button class="btn-danger" onclick="downloadCanvas('TEMP_ID')">保存</button></div><canvas id="canvas-TEMP_ID" style="flex-grow:1;width:100%"></canvas></div>` },
@@ -550,15 +527,13 @@
             'calendar': { title: '日历 & 待办', icon: '📅', w: 350, h: 400, content: `<div style="padding:15px"><h3 style="text-align:center;margin-top:0" id="cal-month-TEMP_ID"></h3><div class="calendar-grid" id="cal-grid-TEMP_ID"></div><div style="margin-top:20px;border-top:1px solid #eee;padding-top:10px"><h4>待办事项</h4><div style="display:flex;gap:5px"><input type="text" id="todo-in-TEMP_ID" placeholder="添加任务..." style="flex-grow:1;padding:5px;border:1px solid #ddd;border-radius:4px"><button class="btn-primary" onclick="addTodo('TEMP_ID')">+</button></div><ul id="todo-list-TEMP_ID" style="padding-left:20px;font-size:13px"></ul></div></div>` },
             'imageviewer': { title: '图片查看器', icon: '🖼️', w: 600, h: 450, content: `<div style="display:flex;flex-direction:column;height:100%;background:#333"><div style="padding:8px;background:#222;color:#fff;display:flex;gap:10px;align-items:center"><input type="file" id="img-file-TEMP_ID" accept="image/*" style="display:none" onchange="loadLocalImg('TEMP_ID', this)"><button class="btn-primary" onclick="document.getElementById('img-file-TEMP_ID').click()">打开本地</button><input type="text" id="img-url-TEMP_ID" placeholder="图片 URL" style="flex-grow:1;padding:4px;border-radius:4px;border:none"><button class="btn-primary" onclick="loadUrlImg('TEMP_ID')">加载</button></div><div style="flex-grow:1;display:flex;align-items:center;justify-content:center;overflow:hidden"><img id="img-disp-TEMP_ID" style="max-width:100%;max-height:100%;display:none"></div></div>` },
             'videoplayer': { title: '视频播放器', icon: '🎬', w: 700, h: 500, content: `<div style="display:flex;flex-direction:column;height:100%;background:#000"><div style="padding:8px;background:#222;color:#fff;display:flex;gap:10px;align-items:center"><input type="file" id="vid-file-TEMP_ID" accept="video/*" style="display:none" onchange="loadLocalVid('TEMP_ID', this)"><button class="btn-primary" onclick="document.getElementById('vid-file-TEMP_ID').click()">打开本地</button><input type="text" id="vid-url-TEMP_ID" placeholder="视频 URL (.mp4)" style="flex-grow:1;padding:4px;border-radius:4px;border:none"><button class="btn-primary" onclick="loadUrlVid('TEMP_ID')">加载</button></div><div style="flex-grow:1;display:flex;align-items:center;justify-content:center;background:#000"><video id="vid-disp-TEMP_ID" controls style="max-width:100%;max-height:100%;display:none"></video></div></div>` },
-            // 新增音乐播放器
             'musicplayer': { title: '音乐播放器', icon: '🎵', w: 500, h: 300, content: `<div style="display:flex;flex-direction:column;height:100%;background:#f5f5f5"><div style="padding:8px;background:#ddd;display:flex;gap:10px;align-items:center"><input type="file" id="audio-file-TEMP_ID" accept="audio/*" style="display:none" onchange="loadLocalAudio('TEMP_ID', this)"><button class="btn-primary" onclick="document.getElementById('audio-file-TEMP_ID').click()">打开本地</button><input type="text" id="audio-url-TEMP_ID" placeholder="音频 URL (.mp3等)" style="flex-grow:1;padding:4px;border-radius:4px;border:none"><button class="btn-primary" onclick="loadUrlAudio('TEMP_ID')">加载</button></div><div style="flex-grow:1;display:flex;align-items:center;justify-content:center;padding:20px"><audio id="audio-disp-TEMP_ID" controls style="width:100%"></audio></div></div>` },
             'settings': { title: '设置', icon: '⚙️', w: 500, h: 400, content: `<div style="padding:20px"><div style="margin-bottom:20px"><h3>个性化</h3><p>壁纸 URL:</p><input type="text" id="bg-input" style="width:100%;padding:8px;margin:5px 0;border:1px solid #ddd;border-radius:4px" value="${getComputedStyle(document.documentElement).getPropertyValue('--bg-image').replace(/url\(['"]?|['"]?\)/g,'')}"><button class="btn-primary" onclick="changeBg()">应用壁纸</button> <button class="btn-danger" onclick="resetBg()">重置默认</button></div><div><h3>系统信息</h3><p>版本: ${CONFIG.version}</p><p>开发者: ${CONFIG.author}</p><p>内核: WebOS Kernel v2.0</p><p>运行时间: <span id="uptime">0s</span></p></div></div>` },
             'about': { title: '关于 Shiorko OS UTP', icon: 'ℹ️', w: 400, h: 300, content: `<div style="text-align:center;padding:40px"><h1 style="color:var(--primary-color);margin:0">Shiorko OS</h1><h2 style="color:#666;margin:5px 0 20px 0;font-weight:normal">UTP Edition</h2><div style="font-size:50px;margin:20px">🚀</div><p>纯前端构建的终极操作系统模拟平台。</p><p>无后端，无框架，极致性能。</p><hr style="border:0;border-top:1px solid #eee;margin:25px 0"><p style="font-size:12px;color:#999">${CONFIG.copyright}</p></div>` }
         };
 
-        // --- 初始化 ---
         window.onload = function() {
-            runBootSequence(); // 修改后的开机序列会等待壁纸
+            runBootSequence();
             updateClock();
             setInterval(updateClock, 1000);
             initWidgets();
@@ -572,18 +547,15 @@
             document.addEventListener('click', e => {
                 if(!e.target.closest('#context-menu')) hideCtx();
             });
-            // 全屏尝试
             document.body.addEventListener('click', () => {
                 if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{});
             }, { once: true });
         };
 
-        // --- 随机启动序列 (修改：最后等待壁纸) ---
         function runBootSequence() {
             const log = document.getElementById('boot-log');
             const bar = document.getElementById('boot-progress-bar');
             const status = document.getElementById('boot-status');
-            
             const steps = [
                 "加载 UTP 内核模块...", "初始化内存管理单元 (MMU)...", "挂载虚拟文件系统 (VFS)...",
                 "加载 Shiorko 图形驱动...", "启动网络协议栈 (TCP/IP)...", "初始化音频子系统...",
@@ -593,49 +565,37 @@
                 "验证数字签名...", "同步云端时间...", "清理临时文件...",
                 "启动电源管理服务...", "系统就绪。"
             ];
-            
             const totalSteps = Math.floor(Math.random() * (steps.length - 10)) + 10;
             const selectedSteps = steps.slice(0, totalSteps);
-            
             let current = 0;
-            
             const processStep = () => {
                 if(current >= selectedSteps.length) {
-                    // 步骤完成，开始加载壁纸
                     status.innerText = "正在加载壁纸...";
                     loadWallpaperAndFinish();
                     return;
                 }
-                
                 const step = selectedSteps[current];
                 const div = document.createElement('div');
                 div.className = 'log-entry';
-                
                 const rand = Math.random();
                 let prefix = "[ OK ]";
                 let cls = "log-ok";
                 if(rand > 0.95) { prefix = "[WARN]"; cls = "log-warn"; }
                 else if(rand > 0.98) { prefix = "[ERR]"; cls = "log-err"; }
-                
                 div.innerHTML = `<span class="${cls}">${prefix}</span> ${step}`;
                 log.prepend(div);
-                
                 status.innerText = step;
                 bar.style.width = `${((current + 1) / totalSteps) * 100}%`;
-                
                 current++;
                 setTimeout(processStep, Math.random() * 250 + 50);
             };
-            
             setTimeout(processStep, 500);
         }
 
-        // 等待壁纸加载完成，随机延时后进入桌面
         function loadWallpaperAndFinish() {
             const bgUrl = getComputedStyle(document.documentElement).getPropertyValue('--bg-image').replace(/url\(['"]?|['"]?\)/g, '');
             const img = new Image();
             img.onload = () => {
-                // 随机延时 0.5~2 秒
                 const delay = Math.random() * 1500 + 500;
                 setTimeout(() => {
                     document.getElementById('boot-screen').style.opacity = '0';
@@ -647,7 +607,6 @@
                 }, delay);
             };
             img.onerror = () => {
-                // 加载失败也继续，但不再延时
                 setTimeout(() => {
                     document.getElementById('boot-screen').style.opacity = '0';
                     setTimeout(() => {
@@ -675,12 +634,10 @@
             m.style.display = m.style.display === 'flex' ? 'none' : 'flex';
         }
 
-        // --- 窗口管理 ---
         function openApp(appId, initialContent) {
             const id = appId + '-' + Date.now();
             const app = apps[appId];
             if(!app) return;
-
             const win = document.createElement('div');
             win.className = 'window';
             win.id = id;
@@ -689,7 +646,6 @@
             win.style.top = (60 + (Object.keys(windows).length * 25)) + 'px';
             win.style.left = (60 + (Object.keys(windows).length * 25)) + 'px';
             win.style.zIndex = ++zIndexCounter;
-
             win.innerHTML = `
                 <div class="title-bar" onmousedown="startDrag(event, '${id}')">
                     <div class="title-drag-area"><span style="margin-right:8px">${app.icon}</span>${app.title}</div>
@@ -701,44 +657,23 @@
                 </div>
                 <div class="window-content">${app.content.replace(/TEMP_ID/g, id)}</div>
             `;
-            
             win.addEventListener('mousedown', () => activateWindow(id));
             document.body.appendChild(win);
-            
             requestAnimationFrame(() => win.classList.add('opened'));
-            
             windows[id] = { el: win, appId, minimized: false, maximized: false, prev: null };
             addToTaskbar(id, app.icon, app.title);
             activateWindow(id);
-
-            // 应用初始化逻辑
             setTimeout(() => {
                 if(appId === 'fileexplorer') renderFiles(id);
-                if(appId === 'terminal') {
-                    const inp = document.getElementById(`inp-${id}`);
-                    if(inp) inp.focus();
-                }
+                if(appId === 'terminal') { const inp = document.getElementById(`inp-${id}`); if(inp) inp.focus(); }
                 if(appId === 'paint') initPaint(id);
                 if(appId === 'snake') initSnake(id);
                 if(appId === 'calendar') initCalendar(id);
-                if(appId === 'codeeditor') {
-                    const area = document.getElementById(`code-${id}`);
-                    if(area) updateLines(id, area);
-                }
-                // 如果有初始内容传递给代码编辑器
-                if(appId === 'codeeditor' && initialContent) {
-                    const area = document.getElementById(`code-${id}`);
-                    if(area) {
-                        area.value = initialContent;
-                        updateLines(id, area);
-                    }
-                }
-                if(appId === 'notepad' && initialContent) {
-                    const area = document.getElementById(`np-${id}`);
-                    if(area) area.value = initialContent;
-                }
+                if(appId === 'codeeditor') { const area = document.getElementById(`code-${id}`); if(area) updateLines(id, area); }
+                if(appId === 'codeeditor' && initialContent) { const area = document.getElementById(`code-${id}`); if(area) { area.value = initialContent; updateLines(id, area); } }
+                if(appId === 'notepad' && initialContent) { const area = document.getElementById(`np-${id}`); if(area) area.value = initialContent; }
             }, 300);
-            return id; // 返回窗口ID便于后续操作
+            return id;
         }
 
         function activateWindow(id) {
@@ -782,7 +717,6 @@
             }
         }
 
-        // 拖拽
         let drag = { active: false, id: null, ox: 0, oy: 0 };
         function startDrag(e, id) {
             if(e.target.closest('.window-controls') || windows[id].maximized) return;
@@ -800,7 +734,6 @@
         });
         document.addEventListener('mouseup', () => { drag.active = false; });
 
-        // 任务栏
         function addToTaskbar(id, icon, title) {
             const item = document.createElement('div');
             item.className = 'task-item active running'; item.id = 'task-'+id; item.title = title;
@@ -814,7 +747,6 @@
             if(id) document.getElementById('task-'+id)?.classList.add('active');
         }
 
-        // --- 小组件逻辑 ---
         function initWidgets() {
             const createChart = (id) => {
                 const c = document.getElementById(id);
@@ -828,7 +760,6 @@
             };
             createChart('cpu-chart');
             createChart('ram-chart');
-
             setInterval(() => {
                 const updateChart = (id, valId) => {
                     const bars = document.getElementById(id).children;
@@ -844,7 +775,6 @@
                 updateChart('cpu-chart', 'cpu-val');
                 updateChart('ram-chart', 'ram-val');
             }, 2000);
-
             const weathers = [
                 { icon: '☀️', temp: '28°C' }, { icon: '⛅', temp: '24°C' },
                 { icon: '🌧️', temp: '19°C' }, { icon: '⛈️', temp: '17°C' },
@@ -855,18 +785,11 @@
             document.getElementById('weather-temp').innerText = w.temp;
         }
 
-        // --- 应用具体逻辑 ---
-
-        // 记事本
         function saveNotepad(id, val) { localStorage.setItem('shiorko_note_' + id, val); }
-        
-        // 代码编辑器
         function updateLines(id, area) {
             const lines = area.value.split('\n').length;
             document.getElementById('ln-' + id).innerHTML = Array(lines).fill(0).map((_, i) => i+1).join('<br>');
         }
-
-        // 计算器
         window.calcOp = (id, v) => {
             const d = document.getElementById('calc-disp-'+id);
             if(!d) return;
@@ -874,21 +797,14 @@
             else if(v==='=') try{ d.innerText=eval(d.innerText); }catch{ d.innerText='Err'; }
             else d.innerText = d.innerText==='0'&&!'+-*/.'.includes(v)?v:d.innerText+v;
         };
-
-        // 浏览器
         window.loadUrl = id => {
             const u = document.getElementById('url-'+id).value.trim();
             const f = document.getElementById('frame-'+id);
             f.src = u.startsWith('http')?u:'https://'+u;
         };
-
-        // 终端 (汉化 + ping命令)
         window.handleTerm = (e, id) => {
             if(e.key === 'ArrowUp') {
-                if(historyIndex > 0) {
-                    historyIndex--;
-                    e.target.value = commandHistory[historyIndex];
-                }
+                if(historyIndex > 0) { historyIndex--; e.target.value = commandHistory[historyIndex]; }
                 return;
             }
             if(e.key === 'ArrowDown') {
@@ -902,22 +818,18 @@
                 return;
             }
             if(e.key !== 'Enter') return;
-            
             const inp = e.target;
             const cmdLine = inp.value.trim();
             if(cmdLine) {
                 commandHistory.push(cmdLine);
                 historyIndex = commandHistory.length;
             }
-            
             const hist = document.getElementById('hist-'+id);
             hist.innerHTML += `<div class="term-line"><span style="color:#0f0">${document.getElementById('prompt-'+id).innerText}</span> ${cmdLine}</div>`;
             inp.value = '';
-            
             const args = cmdLine.split(' ');
             const cmd = args[0].toLowerCase();
             let out = '';
-
             const getObj = () => {
                 let curr = fileSystem['C:'];
                 for(let i=1; i<currentPath.length; i++) curr = curr.children[currentPath[i]];
@@ -927,7 +839,6 @@
                 document.querySelectorAll('[id^="prompt-"]').forEach(el => el.innerText = currentPath.join('\\') + '>');
                 document.querySelectorAll('[id^="path-"]').forEach(el => el.value = currentPath.join('\\'));
             };
-
             switch(cmd) {
                 case 'help': out = '可用命令: ls, cd, mkdir, touch, rm, edit, rename, cat, tree, find, clear, date, whoami, reboot, history, ping, ipconfig'; break;
                 case 'clear': hist.innerHTML = ''; out = null; break;
@@ -1033,7 +944,6 @@
                         } else out = '文件未找到';
                     }
                     break;
-                // 新增网络命令 ping (模拟)
                 case 'ping':
                     if(!args[1]) out = '用法: ping <主机名>';
                     else {
@@ -1055,7 +965,6 @@
             term.scrollTop = term.scrollHeight;
         };
 
-        // 文件资源管理器 (修改双击.py用代码编辑器打开)
         function renderFiles(id) {
             const cont = document.getElementById('content-'+id);
             const pathInp = document.getElementById('path-'+id);
@@ -1064,10 +973,8 @@
                 for(let i=1; i<currentPath.length; i++) c = c.children[currentPath[i]];
                 return c;
             })();
-            
             pathInp.value = currentPath.join('\\');
             cont.innerHTML = '';
-            
             Object.keys(obj.children).forEach(k => {
                 const isDir = obj.children[k].type === 'dir';
                 const div = document.createElement('div');
@@ -1078,7 +985,6 @@
                     else {
                         const ext = k.split('.').pop().toLowerCase();
                         if (ext === 'py') {
-                            // 使用代码编辑器打开，并传递内容
                             openApp('codeeditor', obj.children[k].content);
                         } else if (['txt', 'js', 'css', 'html', 'json'].includes(ext)) {
                             openApp('notepad', obj.children[k].content);
@@ -1100,7 +1006,6 @@
         }
         function feUp(id) { if(currentPath.length > 1) { currentPath.pop(); renderFiles(id); } }
 
-        // 右键菜单
         function showCtx(e, winId, targetEl) {
             const menu = document.getElementById('context-menu');
             menu.style.display = 'flex';
@@ -1147,18 +1052,15 @@
             hideCtx();
         };
 
-        // 画图板
         function initPaint(id) {
             const canvas = document.getElementById('canvas-'+id);
             const ctx = canvas.getContext('2d');
             const container = canvas.parentElement;
             canvas.width = container.clientWidth;
             canvas.height = container.clientHeight;
-            
             let painting = false;
             const getColor = () => document.getElementById('color-'+id).value;
             const getSize = () => document.getElementById('size-'+id).value;
-
             const start = (e) => { painting = true; draw(e); };
             const end = () => { painting = false; ctx.beginPath(); };
             const draw = (e) => {
@@ -1188,7 +1090,6 @@
             link.click();
         };
 
-        // 贪吃蛇
         let snakeIntervals = {};
         function initSnake(id) {
             const cvs = document.getElementById('snake-canvas-'+id);
@@ -1198,33 +1099,25 @@
             let food = {x:15, y:15};
             let dx=1, dy=0;
             let score=0;
-            
             const loop = () => {
                 if(!windows[id]) return;
                 const head = {x: snake[0].x + dx, y: snake[0].y + dy};
                 snake.unshift(head);
-                
                 if(head.x === food.x && head.y === food.y) {
                     score++;
                     scoreEl.innerText = score;
                     food = {x: Math.floor(Math.random()*18), y: Math.floor(Math.random()*18)};
-                } else {
-                    snake.pop();
-                }
-                
+                } else snake.pop();
                 if(head.x<0 || head.x>=18 || head.y<0 || head.y>=18 || snake.slice(1).some(s=>s.x===head.x && s.y===head.y)) {
                     clearInterval(snakeIntervals[id]);
                     alert('游戏结束! 得分: '+score);
                     return;
                 }
-                
                 ctx.fillStyle = '#222'; ctx.fillRect(0,0,360,360);
                 ctx.fillStyle = '#0f0'; snake.forEach(s => ctx.fillRect(s.x*20, s.y*20, 18, 18));
                 ctx.fillStyle = '#f00'; ctx.fillRect(food.x*20, food.y*20, 18, 18);
             };
-            
             snakeIntervals[id] = setInterval(loop, 150);
-            
             document.addEventListener('keydown', (e) => {
                 if(!windows[id]) return;
                 if(e.key==='ArrowUp' && dy!==1) { dx=0; dy=-1; }
@@ -1234,19 +1127,15 @@
             });
         }
 
-        // 日历
         function initCalendar(id) {
             const now = new Date();
             const month = now.getMonth();
             const year = now.getFullYear();
             document.getElementById('cal-month-'+id).innerText = `${year}年 ${month+1}月`;
-            
             const grid = document.getElementById('cal-grid-'+id);
             grid.innerHTML = ['日','一','二','三','四','五','六'].map(d=>`<div class="cal-header">${d}</div>`).join('');
-            
             const firstDay = new Date(year, month, 1).getDay();
             const daysInMonth = new Date(year, month+1, 0).getDate();
-            
             for(let i=0; i<firstDay; i++) grid.innerHTML += `<div></div>`;
             for(let i=1; i<=daysInMonth; i++) {
                 const isToday = (i === now.getDate() && month === now.getMonth());
@@ -1262,8 +1151,6 @@
                 inp.value = '';
             }
         };
-
-        // 图片/视频
         window.loadLocalImg = (id, input) => {
             if(input.files[0]) {
                 const img = document.getElementById('img-disp-'+id);
@@ -1292,8 +1179,6 @@
                 vid.src = url; vid.style.display = 'block'; vid.play();
             }
         };
-
-        // 音乐播放器
         window.loadLocalAudio = (id, input) => {
             if(input.files[0]) {
                 const audio = document.getElementById('audio-disp-'+id);
@@ -1308,8 +1193,6 @@
                 audio.src = url; audio.style.display = 'block'; audio.play();
             }
         };
-
-        // 设置
         window.changeBg = () => {
             const url = document.getElementById('bg-input').value;
             document.documentElement.style.setProperty('--bg-image', `url('${url}')`);
